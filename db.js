@@ -133,7 +133,7 @@ async function initDB() {
 
   // Default settings
   const defaults = [
-    ['logo', '/uploads/geoplast_logo.png'],
+    ['logo', '/images/geoplast_logo.png'],
     ['phone1', '0887 77 89 92'],
     ['email', 'geoplast.v.eood@gmail.com'],
     ['address', 'Варна, ЗПЗ, България'],
@@ -149,22 +149,22 @@ async function initDB() {
   const count = (_db.exec('SELECT COUNT(*) as c FROM products')[0]?.values[0][0]) || 0;
   if (count === 0) {
     const ins = [
-      ['ДЮБЕЛИ ЗА ТОПЛОИЗОЛАЦИЯ С ПОЛИАМИДЕН ПИРОН', '', 17.04, null, 'dubeli-izolacia', 'GP-TI-POL', 500, 'бр.'],
-      ['Дюбел за бетон с голяма периферия за високи натоварвания', '', 106.02, null, 'dubeli-izolacia', 'GP-BET-PER', 200, 'бр.'],
-      ['Дюбел за вата', '', 53.69, null, 'dubeli-izolacia', 'GP-DV-MET', 500, 'бр.'],
-      ['Дюбел за тухла', '', 24.19, null, 'dubeli-izolacia', 'GP-DT-TER', 500, 'бр.'],
-      ['Дюбел за Бетон', '', 41.23, null, 'dubeli-izolacia', 'GP-DB-TER', 500, 'бр.'],
-      ['Дюбел за кабелни връзки', '', 49.05, null, 'dubeli-kabelni', 'GP-DKV-PVC', 400, 'бр.'],
-      ['Фиксатор за арматура – колонен', '', 32.52, null, 'fiksatori-armatura', 'GP-FA-KOL', 299, 'бр.'],
-      ['3D Ограничители за керамични изделия', '', 24.11, null, 'ogranicheteli', 'GP-3D-OGR', 400, 'бр.'],
-      ['Ограничители за керамични изделия', '', 17.79, null, 'ogranicheteli', 'GP-OGR-KER', 600, 'бр.'],
-      ['Клин за фуги', '', 30.68, null, 'klin-fugi', 'GP-KF-STD', 400, 'бр.'],
-      ['Клещи за самонивелиращи системи', '', 10.23, null, 'samoniveliraschi', 'GP-KL-SNS', 100, 'бр.'],
-      ['Самонивелираща система за плочки – затягаща гайка с винт', '', 20.71, null, 'samoniveliraschi', 'GP-SNS-GV', 300, 'бр.'],
-      ['Самонивелираща система за плочки с клин', '', 13.75, null, 'samoniveliraschi', 'GP-SNS-KL', 300, 'бр.'],
+      ['ДЮБЕЛИ ЗА ТОПЛОИЗОЛАЦИЯ С ПОЛИАМИДЕН ПИРОН', '', 17.04, null, 'dubeli-izolacia', 'GP-TI-POL', 500, 'бр.', '/images/products/wp_1158.png'],
+      ['Дюбел за бетон с голяма периферия за високи натоварвания', '', 106.02, null, 'dubeli-izolacia', 'GP-BET-PER', 200, 'бр.', '/images/products/wp_1159.png'],
+      ['Дюбел за вата', '', 53.69, null, 'dubeli-izolacia', 'GP-DV-MET', 500, 'бр.', '/images/products/wp_1777.jpeg'],
+      ['Дюбел за тухла', '', 24.19, null, 'dubeli-izolacia', 'GP-DT-TER', 500, 'бр.', '/images/products/wp_1775.png'],
+      ['Дюбел за Бетон', '', 41.23, null, 'dubeli-izolacia', 'GP-DB-TER', 500, 'бр.', '/images/products/wp_1759.png'],
+      ['Дюбел за кабелни връзки', '', 49.05, null, 'dubeli-kabelni', 'GP-DKV-PVC', 400, 'бр.', '/images/products/wp_865.jpg'],
+      ['Фиксатор за арматура – колонен', '', 32.52, null, 'fiksatori-armatura', 'GP-FA-KOL', 299, 'бр.', '/images/products/wp_870.jpg'],
+      ['3D Ограничители за керамични изделия', '', 24.11, null, 'ogranicheteli', 'GP-3D-OGR', 400, 'бр.', '/images/products/wp_1769.png'],
+      ['Ограничители за керамични изделия', '', 17.79, null, 'ogranicheteli', 'GP-OGR-KER', 600, 'бр.', '/images/products/wp_871.jpg'],
+      ['Клин за фуги', '', 30.68, null, 'klin-fugi', 'GP-KF-STD', 400, 'бр.', '/images/products/wp_1162.png'],
+      ['Клещи за самонивелиращи системи', '', 10.23, null, 'samoniveliraschi', 'GP-KL-SNS', 100, 'бр.', '/images/products/wp_1770.png'],
+      ['Самонивелираща система за плочки – затягаща гайка с винт', '', 20.71, null, 'samoniveliraschi', 'GP-SNS-GV', 300, 'бр.', '/images/products/wp_1754.png'],
+      ['Самонивелираща система за плочки с клин', '', 13.75, null, 'samoniveliraschi', 'GP-SNS-KL', 300, 'бр.', '/images/products/wp_1751.jpg'],
     ];
     for (const r of ins) {
-      _db.run('INSERT INTO products (name, description, price, old_price, category, code, stock, unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', r);
+      _db.run('INSERT INTO products (name, description, price, old_price, category, code, stock, unit, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', r);
     }
   }
 
