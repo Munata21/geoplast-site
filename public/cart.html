@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Количка — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.cart-page { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+.cart-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.cart-table th { background: var(--navy); color: #fff; padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 700; }
+.cart-table td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; font-size: 14px; }
+.cart-table tr:last-child td { border-bottom: none; }
+.product-cell { display: flex; align-items: center; gap: 14px; }
+.cart-img { width: 60px; height: 60px; background: #f8f8f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; flex-shrink: 0; }
+.cart-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.cart-item-name { font-weight: 600; color: var(--navy); line-height: 1.3; }
+.cart-item-code { font-size: 11px; color: #bbb; }
+.qty-ctrl { display: flex; align-items: center; gap: 0; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.qty-ctrl button { background: #f5f5f5; border: none; width: 32px; height: 34px; font-size: 16px; font-weight: 700; color: var(--navy); transition: background .15s; }
+.qty-ctrl button:hover { background: var(--orange); color: #fff; }
+.qty-ctrl input { width: 46px; height: 34px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 14px; font-weight: 600; outline: none; }
+.remove-btn { background: none; border: none; color: #ccc; font-size: 18px; padding: 4px 8px; border-radius: 6px; transition: all .15s; }
+.remove-btn:hover { color: var(--red); background: #fff0f0; }
+.cart-summary { background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.08); margin-top: 20px; }
+.summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+.summary-row:last-child { border-bottom: none; }
+.summary-total { font-size: 18px; font-weight: 900; color: var(--orange); }
+.cart-actions { display: flex; gap: 12px; margin-top: 16px; }
+.btn-checkout { flex: 1; background: var(--orange); color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 16px; font-weight: 700; transition: background .2s; }
+.btn-checkout:hover { background: var(--orange-dark); }
+.btn-continue { background: #f5f5f5; color: var(--navy); border: none; border-radius: 8px; padding: 13px 20px; font-size: 14px; font-weight: 600; transition: background .2s; }
+.btn-continue:hover { background: #e8e8e8; }
+.empty-cart { text-align: center; padding: 60px 20px; background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.empty-cart .icon { font-size: 64px; margin-bottom: 16px; }
+.empty-cart h2 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.empty-cart p { color: var(--gray-txt); font-size: 14px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span id="announcement-text">🚚 Доставка в целия страна | ✅ Сертифицирани продукти | 🏭 Директно от производителя</span></div>
+    <div class="top-bar-contacts"><a href="tel:052761446">052 76 14 46</a><a href="tel:0887778992">0887 77 89 92</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon" id="site-logo">GP</div>
+      <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+    </a>
+    <div class="search-bar">
+      <input type="text" placeholder="Търсете продукт..." onkeydown="if(event.key==='Enter')window.location='/?search='+encodeURIComponent(this.value)">
+      <button onclick="window.location='/?search='+encodeURIComponent(document.querySelector('.search-bar input').value)">🔍</button>
+    </div>
+    <div class="header-right">
+      <a href="/cart.html" class="cart-btn">🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/#products-section">Магазин</a>
+      <a href="/track.html">Проследяване</a>
+      <a href="/cart.html" class="active">🛒 Количка</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>🛒 Количка</h1>
+  <p>Преглед на избраните продукти</p>
+</div>
+
+<div class="cart-page">
+  <div id="cart-content"></div>
+</div>
+
+<footer style="margin-top:40px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД</span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+function renderCart() {
+  const items = Cart.get();
+  const container = document.getElementById('cart-content');
+  if (!items.length) {
+    container.innerHTML = `
+      <div class="empty-cart">
+        <div class="icon">🛒</div>
+        <h2>Количката е празна</h2>
+        <p>Добавете продукти от нашия магазин</p>
+        <a href="/" class="btn-checkout" style="display:inline-block;text-decoration:none;padding:12px 32px">Към магазина →</a>
+      </div>`;
+    return;
+  }
+
+  const subtotal = Cart.total();
+  const rows = items.map(item => {
+    const imgEl = item.image ? `<img src="${item.image}" alt="">` : (getCatEmoji ? getCatEmoji('') : '📦');
+    return `<tr>
+      <td>
+        <div class="product-cell">
+          <div class="cart-img">${imgEl}</div>
+          <div>
+            <div class="cart-item-name">${esc(item.name)}</div>
+            ${item.code ? `<div class="cart-item-code">Код: ${esc(item.code)}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><strong>${item.price.toFixed(2)} €</strong></td>
+      <td>
+        <div class="qty-ctrl">
+          <button onclick="changeQty(${item.id}, -1)">−</button>
+          <input type="number" value="${item.qty}" min="1" onchange="Cart.updateQty(${item.id}, this.value); renderCart()">
+          <button onclick="changeQty(${item.id}, 1)">+</button>
+        </div>
+      </td>
+      <td><strong style="color:var(--orange)">${(item.price * item.qty).toFixed(2)} €</strong></td>
+      <td><button class="remove-btn" onclick="removeItem(${item.id})" title="Премахни">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th style="width:45%">Продукт</th>
+          <th>Ед. цена</th>
+          <th>Количество</th>
+          <th>Сума</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="cart-summary">
+      <div class="summary-row"><span>Продукти (${items.length} вида)</span><span>${subtotal.toFixed(2)} €</span></div>
+      <div class="summary-row"><span>Доставка</span><span style="color:var(--gray-txt);font-size:12px">Изчислява се при checkout</span></div>
+      <div class="summary-row" style="font-weight:700;font-size:16px"><span>Общо</span><span class="summary-total">${subtotal.toFixed(2)} €</span></div>
+      <div class="cart-actions">
+        <button class="btn-continue" onclick="window.location='/'">← Продължи пазаруването</button>
+        <button class="btn-checkout" onclick="window.location='/checkout.html'">Поръчай →</button>
+      </div>
+    </div>`;
+}
+
+function changeQty(id, delta) {
+  const items = Cart.get();
+  const item = items.find(i => i.id === id);
+  if (item) { item.qty = Math.max(1, item.qty + delta); Cart.save(items); renderCart(); }
+}
+
+function removeItem(id) {
+  Cart.remove(id);
+  renderCart();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  Cart.updateHeader();
+  loadSettings();
+  renderCart();
+});
+</script>
+</body>
+</html>

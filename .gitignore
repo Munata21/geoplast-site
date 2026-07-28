@@ -1,0 +1,6 @@
+node_modules/
+.env
+geoplast.db
+uploads/
+*.log
+.DS_Store

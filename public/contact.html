@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контакти — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.contact-wrapper { max-width: 900px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+.contact-form-box { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.contact-form-box h2 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--orange); }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; outline: none; transition: border-color .2s; font-family: inherit; box-sizing: border-box; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--orange); }
+.form-group textarea { resize: vertical; min-height: 120px; }
+.btn-send { width: 100%; background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; transition: background .2s; }
+.btn-send:hover { background: var(--orange-dark); }
+.btn-send:disabled { background: #ccc; cursor: not-allowed; }
+.contact-info-box { background: var(--navy); border-radius: 10px; padding: 28px; color: #fff; }
+.contact-info-box h3 { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 20px; }
+.ci-item { display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start; }
+.ci-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+.ci-text strong { display: block; font-size: 14px; color: #fff; margin-bottom: 3px; }
+.ci-text span { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.6; }
+.hours-box { background: rgba(255,255,255,.07); border-radius: 8px; padding: 14px; margin-top: 20px; }
+.hours-box .hours-title { font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.hours-row { display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,.75); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+.hours-row:last-child { border-bottom: none; }
+.success-msg { background: #e8f9ee; border: 2px solid var(--green); border-radius: 10px; padding: 24px; text-align: center; display: none; }
+.success-msg .icon { font-size: 48px; margin-bottom: 10px; }
+.success-msg h3 { font-size: 18px; color: var(--green); font-weight: 800; margin-bottom: 8px; }
+.success-msg p { font-size: 14px; color: var(--gray-txt); }
+@media (max-width: 768px) { .contact-wrapper { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span>📞 0887 77 89 92 | ✉️ geoplast.v.eood@gmail.com | 🚚 Безплатна доставка до адрес</span></div>
+    <div class="top-bar-contacts"><a href="tel:0887778992">0887 77 89 92</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon" id="site-logo">GP</div>
+      <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+    </a>
+    <div style="flex:1"></div>
+    <div class="header-right">
+      <a href="/cart.html" class="cart-btn">🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/#about">За нас</a>
+      <a href="/#products-section">Магазин</a>
+      <a href="/track.html">Проследяване</a>
+      <a href="/contact.html" class="active">Контакти</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>📬 Контакти</h1>
+  <p>Изпратете запитване или се свържете с нас по телефон</p>
+</div>
+
+<div class="contact-wrapper">
+
+  <!-- FORM -->
+  <div class="contact-form-box">
+    <h2>📝 Изпратете запитване</h2>
+    <div id="success-msg" class="success-msg">
+      <div class="icon">✅</div>
+      <h3>Запитването е изпратено!</h3>
+      <p>Ще се свържем с Вас в рамките на 1 работен ден.</p>
+    </div>
+    <form id="contact-form" onsubmit="sendInquiry(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group">
+          <label>Три имена *</label>
+          <input type="text" id="cf-name" placeholder="Иван Иванов" required>
+        </div>
+        <div class="form-group">
+          <label>Телефон *</label>
+          <input type="tel" id="cf-phone" placeholder="08X XXX XXX" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Имейл</label>
+        <input type="email" id="cf-email" placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label>Тема на запитването</label>
+        <select id="cf-subject">
+          <option value="Запитване за продукт">Запитване за продукт</option>
+          <option value="Искане за оферта">Искане за оферта</option>
+          <option value="Партньорство / Дистрибуция">Партньорство / Дистрибуция</option>
+          <option value="Техническа консултация">Техническа консултация</option>
+          <option value="Рекламация">Рекламация</option>
+          <option value="Друго">Друго</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Съобщение *</label>
+        <textarea id="cf-message" placeholder="Опишете вашето запитване — продукт, количество, размери..." required></textarea>
+      </div>
+      <button type="submit" class="btn-send" id="send-btn">📬 Изпрати запитване</button>
+    </form>
+  </div>
+
+  <!-- INFO -->
+  <div>
+    <div class="contact-info-box">
+      <h3>📍 Как да ни намерите</h3>
+      <div class="ci-item">
+        <div class="ci-icon">📞</div>
+        <div class="ci-text">
+          <strong>Телефон</strong>
+          <span>0887 77 89 92</span>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">✉️</div>
+        <div class="ci-text">
+          <strong>Имейл</strong>
+          <span>geoplast.v.eood@gmail.com</span>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">📍</div>
+        <div class="ci-text">
+          <strong>Адрес</strong>
+          <span>Варна, ЗПЗ (Западна Промишлена Зона)<br>България</span>
+        </div>
+      </div>
+      <div class="hours-box">
+        <div class="hours-title">Работно време</div>
+        <div class="hours-row"><span>Понеделник — Петък</span><span>08:00 – 17:00</span></div>
+        <div class="hours-row"><span>Събота — Неделя</span><span>Почивни дни</span></div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;border:1px solid var(--border);padding:18px;margin-top:16px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px">🏆 Сертифицирано производство</div>
+      <div style="font-size:12px;color:var(--gray-txt);margin-bottom:12px">БДС EN ISO/IEC 17025:2006</div>
+      <a href="/certificate.pdf" target="_blank" style="display:inline-block;background:var(--navy);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;text-decoration:none">📄 Изтегли сертификат</a>
+    </div>
+  </div>
+
+</div>
+
+<footer style="margin-top:40px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД · Всички права запазени</span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+async function sendInquiry(e) {
+  e.preventDefault();
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Изпращане...';
+
+  const body = {
+    name: document.getElementById('cf-name').value.trim(),
+    phone: document.getElementById('cf-phone').value.trim(),
+    email: document.getElementById('cf-email').value.trim(),
+    subject: document.getElementById('cf-subject').value,
+    message: document.getElementById('cf-message').value.trim()
+  };
+
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      throw new Error();
+    }
+  } catch {
+    showToast('Грешка при изпращане. Моля обадете се на телефон.', 'error');
+    btn.disabled = false;
+    btn.textContent = '📬 Изпрати запитване';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  Cart.updateHeader();
+  loadSettings();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поръчки — Геопласт Админ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e}
+a{text-decoration:none;color:inherit}
+:root{--orange:#ff952b;--navy:#1a1a2e;--green:#38a169;--red:#e53e3e;--blue:#3182ce;--white:#fff;--border:#e2e8f0;--gray:#718096}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:#fff}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 20px 6px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--orange)}
+.nav-link .icon{font-size:16px;width:20px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:10px}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4)}
+.sidebar-footer a:hover{color:#fff}
+.main{flex:1;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:18px;font-weight:800;color:var(--navy)}
+.content{padding:24px 28px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:#e07a10}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-secondary{background:#f0f2f5;color:var(--navy);border:1px solid var(--border)}.btn-secondary:hover{background:#e2e8f0}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#276749}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#c53030}
+/* Status filter tabs */
+.status-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.status-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--gray);transition:all .2s}
+.status-tab.active,.status-tab:hover{border-color:var(--orange);color:var(--orange);background:#fff8f0}
+.status-tab.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+/* Table */
+.table-box{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.table-toolbar{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.table-toolbar input{flex:1;max-width:280px;border:2px solid var(--border);border-radius:7px;padding:7px 12px;font-size:13px;outline:none}
+.table-toolbar input:focus{border-color:var(--orange)}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f9fa;padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.sp-pending  {background:#fff3cd;color:#856404}
+.sp-confirmed{background:#d1ecf1;color:#0c5460}
+.sp-shipped  {background:#d4edda;color:#155724}
+.sp-delivered{background:#d4edda;color:#155724}
+.sp-cancelled{background:#f8d7da;color:#721c24}
+/* Detail modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border)}
+.modal-header h2{font-size:16px;font-weight:800;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:20px;color:#999;cursor:pointer}
+.modal-close:hover{color:var(--navy)}
+.modal-body{padding:22px 24px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.detail-item{background:#f8f9fa;border-radius:8px;padding:12px 14px}
+.detail-item .dl{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.detail-item .dv{font-size:14px;font-weight:600;color:var(--navy)}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:18px}
+.items-table th{background:#f8f9fa;padding:8px 12px;font-size:11px;color:var(--gray);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:left}
+.items-table td{padding:9px 12px;font-size:13px;border-bottom:1px solid #f5f5f5}
+.status-form{background:#f8f9fa;border-radius:8px;padding:16px}
+.status-form h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.status-form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.status-form-row select,.status-form-row input{border:2px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit}
+.status-form-row select:focus,.status-form-row input:focus{border-color:var(--orange)}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:space-between;align-items:center}
+/* Login */
+.login-overlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#2d3561);z-index:2000;align-items:center;justify-content:center}
+.login-overlay.open{display:flex}
+.login-box{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box .logo-icon{width:60px;height:60px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;margin:0 auto 14px}
+.login-box h2{font-size:20px;font-weight:800;margin-bottom:20px}
+.login-box input{width:100%;border:2px solid var(--border);border-radius:8px;padding:11px 14px;font-size:15px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-box input:focus{border-color:var(--orange)}
+.login-box button{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+.login-err{color:var(--red);font-size:13px;margin-top:8px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:4px solid var(--green)}
+.toast.error{border-left:4px solid var(--red)}
+</style>
+</head>
+<body>
+
+<div class="login-overlay open" id="login-overlay">
+  <div class="login-box">
+    <div class="logo-icon">GP</div>
+    <h2>Геопласт Админ</h2>
+    <input type="password" id="admin-pass" placeholder="Парола..." onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Влез →</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Геопласт</div>
+      <div class="sub">Администрация</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Главно</div>
+      <a href="/admin/" class="nav-link"><span class="icon">📊</span> Табло</a>
+      <div class="nav-section">Магазин</div>
+      <a href="/admin/orders.html" class="nav-link active"><span class="icon">📦</span> Поръчки</a>
+      <a href="/admin/products.html" class="nav-link"><span class="icon">🔩</span> Продукти</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank">🌐 Виж магазина</a>
+      <a href="#" onclick="doLogout()">🚪 Изход</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>📦 Поръчки</h1>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span id="orders-count" style="font-size:13px;color:var(--gray)"></span>
+        <button class="btn btn-secondary btn-sm" onclick="loadOrders()">↺ Обнови</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="status-tabs">
+        <div class="status-tab active" onclick="setStatusFilter('',this)">Всички</div>
+        <div class="status-tab" onclick="setStatusFilter('pending',this)">⏳ Чакащи</div>
+        <div class="status-tab" onclick="setStatusFilter('confirmed',this)">✅ Потвърдени</div>
+        <div class="status-tab" onclick="setStatusFilter('shipped',this)">🚚 Изпратени</div>
+        <div class="status-tab" onclick="setStatusFilter('delivered',this)">🎉 Доставени</div>
+        <div class="status-tab" onclick="setStatusFilter('cancelled',this)">❌ Отменени</div>
+      </div>
+      <div class="table-box">
+        <div class="table-toolbar">
+          <input type="text" placeholder="🔍 Търси по номер, клиент, град..." oninput="filterOrders(this.value)">
+          <div style="margin-left:auto;font-size:13px;color:var(--gray)" id="orders-total-revenue"></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Номер</th>
+              <th>Клиент</th>
+              <th>Град</th>
+              <th>Продукти</th>
+              <th>Куриер</th>
+              <th>Сума</th>
+              <th>Статус</th>
+              <th>Дата</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:30px;color:#999">Зареждане...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order detail modal -->
+<div class="modal-overlay" id="order-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-order-num">Поръчка</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid" id="order-detail-grid"></div>
+      <h3 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px">Продукти:</h3>
+      <table class="items-table">
+        <thead><tr><th>Продукт</th><th>Ед. цена</th><th>Бр.</th><th>Сума</th></tr></thead>
+        <tbody id="order-items-tbody"></tbody>
+      </table>
+      <div class="status-form">
+        <h3>🔄 Обнови статус</h3>
+        <div class="status-form-row">
+          <select id="new-status">
+            <option value="pending">⏳ Изчаква потвърждение</option>
+            <option value="confirmed">✅ Потвърдена</option>
+            <option value="shipped">🚚 Изпратена</option>
+            <option value="delivered">🎉 Доставена</option>
+            <option value="cancelled">❌ Отменена</option>
+          </select>
+          <input type="text" id="new-tracking" placeholder="Товарителница (незадължително)">
+          <button class="btn btn-primary" onclick="updateStatus()">💾 Запази</button>
+        </div>
+        <div style="font-size:12px;color:var(--gray);margin-top:8px">💡 При добавяне на товарителница клиентът може да проследи пратката на /track.html</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a id="track-link" href="#" target="_blank" style="font-size:13px;color:var(--blue)">🔍 Проследи пратката →</a>
+      <button class="btn btn-secondary" onclick="closeModal()">Затвори</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STATUS_LABELS = { pending:'В изчакване', confirmed:'Потвърдена', shipped:'Изпратена', delivered:'Доставена', cancelled:'Отменена' };
+let allOrders = [];
+let currentStatusFilter = '';
+let currentOrderId = null;
+
+async function doLogin() {
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: document.getElementById('admin-pass').value }) });
+  if (res.ok) { document.getElementById('login-overlay').classList.remove('open'); loadOrders(); }
+  else document.getElementById('login-err').textContent = 'Грешна парола';
+}
+async function doLogout() { await fetch('/api/admin/logout',{method:'POST'}); location.href='/admin/'; }
+async function checkAuth() {
+  const d = await (await fetch('/api/admin/check')).json();
+  if (d.isAdmin) { document.getElementById('login-overlay').classList.remove('open'); loadOrders(); }
+}
+
+function setStatusFilter(status, el) {
+  currentStatusFilter = status;
+  document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  loadOrders();
+}
+
+async function loadOrders() {
+  const params = new URLSearchParams();
+  if (currentStatusFilter) params.set('status', currentStatusFilter);
+  const res = await fetch('/api/orders?' + params.toString());
+  allOrders = await res.json();
+  renderOrders(allOrders);
+}
+
+function filterOrders(search) {
+  const s = search.toLowerCase();
+  const filtered = s
+    ? allOrders.filter(o => o.order_number.toLowerCase().includes(s) || o.customer_name.toLowerCase().includes(s) || (o.customer_city||'').toLowerCase().includes(s) || (o.customer_phone||'').includes(s))
+    : allOrders;
+  renderOrders(filtered);
+}
+
+function renderOrders(orders) {
+  document.getElementById('orders-count').textContent = `${orders.length} поръчки`;
+  const totalRev = orders.filter(o => o.status !== 'cancelled').reduce((s,o) => s + parseFloat(o.total||0), 0);
+  document.getElementById('orders-total-revenue').textContent = `Общо: ${totalRev.toFixed(2)} €`;
+
+  const tbody = document.getElementById('orders-tbody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#999">Няма поръчки</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o => {
+    const d = new Date(o.created_at);
+    const dStr = d.toLocaleDateString('bg-BG', { day:'2-digit', month:'short', year:'numeric' });
+    const tStr = d.toLocaleTimeString('bg-BG', { hour:'2-digit', minute:'2-digit' });
+    const courier = o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt';
+    const summary = (o.items_summary||'').slice(0, 50) + ((o.items_summary||'').length > 50 ? '…' : '');
+    return `<tr>
+      <td><strong style="color:#ff952b;font-size:13px">${esc(o.order_number)}</strong></td>
+      <td>
+        <div style="font-weight:600">${esc(o.customer_name)}</div>
+        <div style="font-size:11px;color:#999">${esc(o.customer_phone)}</div>
+      </td>
+      <td style="font-size:12px">${esc(o.customer_city)}</td>
+      <td style="font-size:12px;color:#555;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(o.items_summary||'')}">${esc(summary)||'—'}</td>
+      <td style="font-size:12px">${courier}</td>
+      <td><strong>${parseFloat(o.total||0).toFixed(2)} €</strong><br><span style="font-size:11px;color:#999">${o.payment_method==='cod'?'Нал. платеж':'Банков превод'}</span></td>
+      <td><span class="status-pill sp-${o.status}">${STATUS_LABELS[o.status]||o.status}</span></td>
+      <td style="font-size:12px;color:#666">${dStr}<br>${tStr}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openOrder(${o.id})">👁 Детайли</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function openOrder(id) {
+  currentOrderId = id;
+  const o = await (await fetch(`/api/orders/${id}`)).json();
+  document.getElementById('modal-order-num').textContent = `📦 Поръчка ${o.order_number}`;
+  document.getElementById('track-link').href = `/track.html?order=${o.order_number}`;
+
+  document.getElementById('order-detail-grid').innerHTML = `
+    <div class="detail-item"><div class="dl">Клиент</div><div class="dv">${esc(o.customer_name)}</div></div>
+    <div class="detail-item"><div class="dl">Телефон</div><div class="dv"><a href="tel:${esc(o.customer_phone)}" style="color:var(--orange)">${esc(o.customer_phone)}</a></div></div>
+    <div class="detail-item"><div class="dl">Имейл</div><div class="dv">${o.customer_email ? `<a href="mailto:${esc(o.customer_email)}" style="color:var(--blue)">${esc(o.customer_email)}</a>` : '—'}</div></div>
+    <div class="detail-item"><div class="dl">Град</div><div class="dv">${esc(o.customer_city)}</div></div>
+    <div class="detail-item" style="grid-column:1/-1"><div class="dl">Адрес</div><div class="dv">${esc(o.customer_address)}</div></div>
+    <div class="detail-item"><div class="dl">Куриер</div><div class="dv">${o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt'}</div></div>
+    <div class="detail-item"><div class="dl">Товарителница</div><div class="dv">${o.tracking_number || '—'}</div></div>
+    <div class="detail-item"><div class="dl">Плащане</div><div class="dv">${o.payment_method === 'cod' ? '💵 Наложен платеж' : '🏦 Банков превод'}</div></div>
+    <div class="detail-item"><div class="dl">Дата</div><div class="dv">${new Date(o.created_at).toLocaleString('bg-BG')}</div></div>
+    ${o.notes ? `<div class="detail-item" style="grid-column:1/-1"><div class="dl">Бележки</div><div class="dv">${esc(o.notes)}</div></div>` : ''}
+  `;
+
+  const items = o.items || [];
+  const subtotal = items.reduce((s,i) => s + i.price*i.qty, 0);
+  document.getElementById('order-items-tbody').innerHTML = items.map(i =>
+    `<tr>
+      <td>${esc(i.product_name)}</td>
+      <td>${parseFloat(i.price).toFixed(2)} €</td>
+      <td>${i.qty}</td>
+      <td><strong>${(i.price*i.qty).toFixed(2)} €</strong></td>
+    </tr>`
+  ).join('') + `
+    <tr style="background:#f8f9fa">
+      <td colspan="3" style="text-align:right;font-weight:700;font-size:13px">Продукти:</td>
+      <td><strong>${subtotal.toFixed(2)} €</strong></td>
+    </tr>
+    <tr style="background:#f8f9fa">
+      <td colspan="3" style="text-align:right;font-weight:700;font-size:13px">Доставка:</td>
+      <td><strong>${parseFloat(o.courier_price||0).toFixed(2)} лв.</strong></td>
+    </tr>
+    <tr style="background:#fff8f0">
+      <td colspan="3" style="text-align:right;font-weight:900;font-size:14px;color:var(--navy)">ОБЩО:</td>
+      <td><strong style="color:var(--orange);font-size:16px">${parseFloat(o.total).toFixed(2)} €</strong></td>
+    </tr>`;
+
+  document.getElementById('new-status').value = o.status;
+  document.getElementById('new-tracking').value = o.tracking_number || '';
+  document.getElementById('order-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('order-modal').classList.remove('open');
+  currentOrderId = null;
+}
+
+async function updateStatus() {
+  if (!currentOrderId) return;
+  const status = document.getElementById('new-status').value;
+  const tracking = document.getElementById('new-tracking').value.trim();
+  const res = await fetch(`/api/orders/${currentOrderId}/status`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ status, tracking_number: tracking })
+  });
+  if (res.ok) {
+    showToast(`✅ Статусът е обновен: ${STATUS_LABELS[status]}`, 'success');
+    loadOrders();
+    closeModal();
+  } else showToast('Грешка при обновяване', 'error');
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  checkAuth();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('id')) setTimeout(() => openOrder(parseInt(params.get('id'))), 500);
+});
+</script>
+</body>
+</html>

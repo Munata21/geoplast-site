@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Геопласт — Крепежни Елементи | Варна</title>
+<meta name="description" content="Геопласт — производител на крепежни елементи за строителството. Дюбели, фиксатори, клин за фуги. Варна, ЗПЗ.">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee">
+      <span id="announcement-text">🚚 Безплатна доставка до адрес в цялата страна | ✅ Сертифицирани продукти | 🏭 Директно от производителя | 📞 Консултация: 0887 77 89 92</span>
+    </div>
+    <div class="top-bar-contacts">
+      <a href="tel:0887778992">0887 77 89 92</a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon" id="site-logo">GP</div>
+      <div>
+        <div class="logo-name">Геопласт</div>
+        <div class="logo-sub">Крепежни Елементи</div>
+      </div>
+    </a>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Търсете продукт — дюбели, фиксатори..." oninput="handleSearch(this.value)">
+      <button onclick="handleSearch(document.getElementById('search-input').value)">🔍</button>
+    </div>
+    <div class="header-right">
+      <div class="header-phone">
+        <a href="tel:0887778992" id="hdr-phone">0887 77 89 92</a>
+        <span>08:00–17:00</span>
+      </div>
+      <a href="/cart.html" class="cart-btn">
+        🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE CATS TOGGLE (visible only on mobile) -->
+<button id="mobile-cats-btn" class="mobile-cats-btn">☰&nbsp; КАТЕГОРИИ</button>
+<div id="mobile-cats-panel" class="mobile-cats-panel">
+  <a href="#" onclick="filterByCategory('all',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">📦 Всички продукти</a>
+  <a href="#" onclick="filterByCategory('dubeli-izolacia',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">🔩 Дюбели за изолация</a>
+  <a href="#" onclick="filterByCategory('dubeli-kabelni',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">🔗 Дюбели за кабелни връзки</a>
+  <a href="#" onclick="filterByCategory('fiksatori-armatura',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">🔧 Фиксатори за арматура</a>
+  <a href="#" onclick="filterByCategory('ogranicheteli',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">🧱 Ограничители за керамика</a>
+  <a href="#" onclick="filterByCategory('klin-fugi',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">📐 Клин за фуги</a>
+  <a href="#" onclick="filterByCategory('samoniveliraschi',this);document.getElementById('mobile-cats-panel').classList.remove('open');return false">📏 Самонивелиращи системи</a>
+  <a href="/individual-order.html" style="color:var(--orange);font-weight:800">📋 Индивидуална поръчка</a>
+</div>
+
+<!-- NAV -->
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <button class="nav-cat-btn">☰&nbsp; КАТЕГОРИИ</button>
+    <div class="nav-links">
+      <a href="/" class="active">Начало</a>
+      <a href="#about">За нас</a>
+      <a href="#products-section">Магазин</a>
+      <a href="#partners">Партньори</a>
+      <a href="/individual-order.html">Индивидуална поръчка</a>
+      <a href="/track.html">Проследяване</a>
+      <a href="/contact.html">Контакти</a>
+    </div>
+  </div>
+</nav>
+
+<!-- TRUST -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><div class="trust-icon">🏭</div><div class="trust-text"><strong>Директно от производителя</strong><span>Собствено производство</span></div></div>
+    <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-text"><strong>Безплатна доставка</strong><span>До адрес в цялата страна</span></div></div>
+    <div class="trust-item"><div class="trust-icon">✅</div><div class="trust-text"><strong>Сертифицирано качество</strong><span>Международен стандарт</span></div></div>
+    <div class="trust-item"><div class="trust-icon">💬</div><div class="trust-text"><strong>Техническа консултация</strong><span>Специалист по телефон</span></div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-box">
+      <div class="sidebar-title">☰ Категории</div>
+      <ul class="cat-list">
+        <li class="cat-item"><a href="#" onclick="filterByCategory('all',this);return false" class="active">📦 Всички продукти <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-izolacia',this);return false">🔩 Дюбели за изолация <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-kabelni',this);return false">🔗 Дюбели за кабелни връзки <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('fiksatori-armatura',this);return false">🔧 Фиксатори за арматура <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('ogranicheteli',this);return false">🧱 Ограничители за керамика <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('klin-fugi',this);return false">📐 Клин за фуги <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('samoniveliraschi',this);return false">📏 Самонивелиращи системи <span class="arrow">›</span></a></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-box">
+      <div class="sidebar-title" style="background:var(--orange)">📞 Контакти</div>
+      <div class="contact-box">
+        <div class="contact-row"><div class="contact-icon">📞</div><div class="contact-info"><strong>0887 77 89 92</strong><span>08:00 – 17:00 ч.</span></div></div>
+        <div class="contact-row"><div class="contact-icon">📍</div><div class="contact-info"><strong>Варна, ЗПЗ</strong><span>България</span></div></div>
+        <div class="contact-row"><div class="contact-icon">✉️</div><div class="contact-info"><strong>geoplast.v.eood@gmail.com</strong></div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-box" style="overflow:hidden">
+      <div style="background:linear-gradient(135deg,#1a1a2e,#2d3561);padding:18px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Индивидуална поръчка</div>
+        <div style="font-size:32px;margin-bottom:6px">📋</div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:3px">Голямо количество?</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px">Свържете се с нас за специална оферта</div>
+        <a href="/individual-order.html" style="display:block;background:var(--orange);color:#fff;padding:7px;border-radius:6px;font-size:12px;font-weight:700">Запитване →</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero fade-in">
+      <div>
+        <div class="hero-badge">Директно от производителя</div>
+        <h1>Крепежни елементи за <em>стабилно строителство</em></h1>
+        <p>Дюбели за изолация, фиксатори за арматура и клин за фуги — с доказано качество от Варна.</p>
+        <a href="#products-section" class="hero-btn">Разгледай продуктите →</a>
+      </div>
+      <div class="hero-deco">🔩</div>
+    </div>
+
+    <!-- CATEGORY CARDS -->
+    <div class="section-header fade-in">
+      <div class="section-title">Продуктови категории</div>
+    </div>
+    <div class="cat-grid fade-in">
+      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-izolacia',this);return false"><div class="cat-card-icon">🔩</div><div class="cat-card-name">Дюбели за изолация</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-kabelni',this);return false"><div class="cat-card-icon">🔗</div><div class="cat-card-name">Дюбели за кабелни връзки</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('fiksatori-armatura',this);return false"><div class="cat-card-icon">🔧</div><div class="cat-card-name">Фиксатори за арматура</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('ogranicheteli',this);return false"><div class="cat-card-icon">🧱</div><div class="cat-card-name">Ограничители за керамика</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('klin-fugi',this);return false"><div class="cat-card-icon">📐</div><div class="cat-card-name">Клин за фуги</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('samoniveliraschi',this);return false"><div class="cat-card-icon">📏</div><div class="cat-card-name">Самонивелиращи системи</div></a>
+    </div>
+
+
+    <!-- PRODUCTS -->
+    <div id="products-section" class="section-header fade-in" style="margin-top:8px">
+      <div class="section-title">Продукти</div>
+      <a href="#" class="section-link" onclick="filterByCategory('all');return false">Виж всички →</a>
+    </div>
+    <div class="products-grid" id="products-grid">
+      <div class="loading"><div class="spinner"></div><br>Зареждане...</div>
+    </div>
+
+    <!-- ABOUT -->
+    <div id="about" class="fade-in" style="background:var(--white);border-radius:10px;border:1px solid var(--border);padding:24px;margin-bottom:22px">
+      <div class="section-header"><div class="section-title">За нас</div></div>
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:24px;margin-top:14px" class="about-grid">
+        <div>
+          <p style="font-size:14px;color:var(--gray-txt);line-height:1.85;margin-bottom:12px">
+            <strong>Геопласт ЕООД</strong> е основана през 1997 г. в гр. Варна с предмет на дейност — производство на пластмасови изделия. Дълго време фирмата се специализира в капачки, гърловини и дръжки за бутилки, но в последствие развива интерес към строителството.
+          </p>
+          <p style="font-size:14px;color:var(--gray-txt);line-height:1.85;margin-bottom:12px">
+            През <strong>2005 г.</strong> с решение на общото събрание е вписана в Търговския регистър под името Геопласт ЕООД и стартира производството на:
+          </p>
+          <ul style="font-size:14px;color:var(--gray-txt);line-height:2;padding-left:20px;margin-bottom:12px">
+            <li>Дюбели за изолация — бетон и тухла</li>
+            <li>Дюбели за кабелни връзки</li>
+            <li>Колонни фиксатори за арматура</li>
+            <li>Ограничители за керамични изделия</li>
+            <li>Клин за фуги</li>
+          </ul>
+          <p style="font-size:14px;color:var(--gray-txt);line-height:1.85;margin-bottom:16px">
+            Геопласт ЕООД разполага с <strong>10 производствени машини</strong>, собствена складова база и транспорт. Клиенти са водещи фирми в строителния бранш в цяла България.
+          </p>
+          <p style="font-size:14px;color:var(--gray-txt);line-height:1.85">
+            Фирмата притежава <strong>сертификат за качество</strong> по БДС EN ISO/IEC 17025:2006, издаден от акредитиран Изпитателен център по строителство (ИЦС), лаборатория „Строителна химия и изолации".
+          </p>
+          <div style="margin-top:16px;padding:12px 16px;background:#f8f8f8;border-radius:8px;border:1px solid #eee">
+            <div style="font-size:12px;color:var(--gray-txt)">🏆 Сертификатите ще бъдат публикувани скоро.</div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="background:linear-gradient(135deg,#1a1a2e,#2d3561);border-radius:10px;padding:20px">
+            <div style="font-size:40px;margin-bottom:8px">🏭</div>
+            <div style="font-size:28px;font-weight:900;color:var(--orange)">1997</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:16px">Година на основаване</div>
+            <div style="font-size:28px;font-weight:900;color:#fff">10+</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:16px">Машини</div>
+            <div style="font-size:28px;font-weight:900;color:var(--orange)">27г.</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6)">Опит в бранша</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTNERS -->
+    <div id="partners" class="partners-bar fade-in">
+      <div class="partners-title">Партньори и дистрибутори</div>
+      <div class="partners-slider-wrap">
+        <div class="partners-slider" id="partners-slider">
+          <img src="/uploads/partner_1340.jpg" alt="Практис">
+          <img src="/uploads/partner_1347.jpg" alt="В-Великов-КВ">
+          <img src="/uploads/partner_1346.jpg" alt="Валекс Строй">
+          <img src="/uploads/partner_1345.jpg" alt="Топкер">
+          <img src="/uploads/partner_1343.jpg" alt="Стоилова 2004">
+          <img src="/uploads/partner_1342.jpg" alt="Шарков Инком">
+          <img src="/uploads/partner_1339.jpg" alt="Недев">
+          <img src="/uploads/partner_1337.jpg" alt="Ремстарс">
+          <img src="/uploads/partner_1353.jpg" alt="Феонекс">
+          <img src="/uploads/partner_1352.jpg" alt="Жоан">
+          <img src="/uploads/partner_1351.jpg" alt="Микс">
+          <img src="/uploads/partner_1350.jpg" alt="Аква-3">
+          <!-- duplicate for seamless loop -->
+          <img src="/uploads/partner_1340.jpg" alt="Практис">
+          <img src="/uploads/partner_1347.jpg" alt="В-Великов-КВ">
+          <img src="/uploads/partner_1346.jpg" alt="Валекс Строй">
+          <img src="/uploads/partner_1345.jpg" alt="Топкер">
+          <img src="/uploads/partner_1343.jpg" alt="Стоилова 2004">
+          <img src="/uploads/partner_1342.jpg" alt="Шарков Инком">
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo"><div class="logo-icon" style="flex-shrink:0">GP</div><div><div class="logo-name" style="color:#fff">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div></div>
+      <p>Собствено производство на крепежни елементи за строителството. Сертифицирани продукти с доказано качество.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Навигация</h4>
+      <ul>
+        <li><a href="/">Начало</a></li>
+        <li><a href="/za-nas.html">За нас</a></li>
+        <li><a href="#products-section">Магазин</a></li>
+        <li><a href="/dostavki.html">Доставки</a></li>
+        <li><a href="/individual-order.html">Индивидуална поръчка</a></li>
+        <li><a href="/track.html">Проследяване</a></li>
+        <li><a href="/contact.html">Контакти</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Правна информация</h4>
+      <ul>
+        <li><a href="/uslovia.html">Общи условия</a></li>
+        <li><a href="/gdpr.html">Политика за данните</a></li>
+        <li><a href="#" onclick="filterByCategory('dubeli-izolacia');return false">Дюбели за изолация</a></li>
+        <li><a href="#" onclick="filterByCategory('fiksatori-armatura');return false">Фиксатори арматура</a></li>
+        <li><a href="#" onclick="filterByCategory('klin-fugi');return false">Клин за фуги</a></li>
+      </ul>
+    </div>
+    <div class="footer-col" id="footer-contacts">
+      <h4>Контакти</h4>
+      <div class="footer-contact-item"><span class="fi">📞</span><span>0887 77 89 92</span></div>
+      <div class="footer-contact-item"><span class="fi">📍</span><span>Варна, ЗПЗ, България</span></div>
+      <div class="footer-contact-item"><span class="fi">✉️</span><span>geoplast.v.eood@gmail.com</span></div>
+      <div class="footer-contact-item"><span class="fi">🕐</span><span>08:00 – 17:00 ч. (Пон–Пет)</span></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Геопласт ЕООД · Всички права запазени</span>
+    <div style="display:flex;gap:16px;align-items:center">
+      <span class="footer-cert">🏆 Сертифицирано производство</span>
+    </div>
+  </div>
+</footer>
+
+
+<script src="/js/app.js"></script>
+</body>
+</html>

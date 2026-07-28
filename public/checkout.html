@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поръчка — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.checkout-wrapper { max-width: 1040px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+.checkout-form-box { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.checkout-form-box h2 { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--orange); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-row.full { grid-template-columns: 1fr; }
+.form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px;
+  font-size: 14px; outline: none; transition: border-color .2s; font-family: inherit;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--orange); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group input.error { border-color: var(--red); }
+
+/* Courier selection */
+.courier-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.courier-tab { border: 2px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all .2s; position: relative; }
+.courier-tab:hover { border-color: var(--orange); }
+.courier-tab.selected { border-color: var(--orange); background: #fff8f0; }
+.courier-tab input[type=radio] { position: absolute; opacity: 0; width: 0; }
+.courier-tab .ctab-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.courier-tab .ctab-logo { font-size: 24px; }
+.courier-tab .ctab-name { font-size: 15px; font-weight: 800; color: var(--navy); }
+.courier-tab .ctab-desc { font-size: 12px; color: var(--gray-txt); }
+.courier-tab .ctab-price { font-size: 18px; font-weight: 900; color: var(--orange); margin-top: 8px; }
+.courier-tab .ctab-price span { font-size: 12px; color: var(--gray-txt); font-weight: 400; }
+
+/* City search autocomplete */
+.city-search-wrap { position: relative; }
+.city-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 2px solid var(--orange); border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.city-dropdown.open { display: block; }
+.city-option { padding: 10px 14px; font-size: 14px; cursor: pointer; transition: background .15s; }
+.city-option:hover { background: #fff8f0; color: var(--orange); }
+
+/* Payment methods */
+.payment-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.payment-opt { border: 2px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all .2s; }
+.payment-opt:hover { border-color: var(--orange); }
+.payment-opt.selected { border-color: var(--orange); background: #fff8f0; }
+.payment-opt input[type=radio] { display: none; }
+.payment-opt .po-icon { font-size: 24px; margin-bottom: 6px; }
+.payment-opt .po-name { font-size: 14px; font-weight: 700; color: var(--navy); }
+.payment-opt .po-desc { font-size: 12px; color: var(--gray-txt); }
+
+/* Order summary sidebar */
+.order-summary { position: sticky; top: 80px; }
+.summary-box { background: #fff; border-radius: 10px; padding: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.08); margin-bottom: 14px; }
+.summary-box h3 { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--orange); }
+.summary-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+.summary-item:last-child { border-bottom: none; }
+.summary-item .s-name { color: var(--gray-txt); }
+.summary-divider { border: none; border-top: 2px solid #f0f0f0; margin: 12px 0; }
+.summary-total-row { display: flex; justify-content: space-between; font-size: 17px; font-weight: 900; margin-top: 10px; }
+.summary-total-row .amount { color: var(--orange); }
+.btn-place-order { width: 100%; background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: 800; transition: background .2s; margin-top: 16px; }
+.btn-place-order:hover { background: var(--orange-dark); }
+.btn-place-order:disabled { background: #ccc; cursor: not-allowed; }
+.delivery-note { font-size: 12px; color: var(--gray-txt); text-align: center; margin-top: 10px; line-height: 1.5; }
+.order-success { text-align: center; padding: 60px 20px; background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.order-success .icon { font-size: 72px; margin-bottom: 16px; }
+.order-success h2 { font-size: 26px; font-weight: 900; color: var(--green); margin-bottom: 10px; }
+.order-success .order-num { font-size: 20px; font-weight: 700; color: var(--navy); background: #f0f0f0; display: inline-block; padding: 8px 20px; border-radius: 8px; margin-bottom: 16px; }
+.order-success p { color: var(--gray-txt); font-size: 14px; max-width: 440px; margin: 0 auto 24px; line-height: 1.7; }
+@media (max-width: 768px) {
+  .checkout-wrapper { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .courier-tabs { grid-template-columns: 1fr; }
+  .payment-opts { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span>🚚 Безплатна доставка до адрес в цялата страна | Куриер: Интерлогистик | ✅ Наложен платеж или банков превод</span></div>
+    <div class="top-bar-contacts"><a href="tel:0887778992">0887 77 89 92</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon" id="site-logo">GP</div>
+      <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+    </a>
+    <div style="flex:1"></div>
+    <div class="header-right">
+      <a href="/cart.html" class="cart-btn">🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/cart.html">🛒 Количка</a>
+      <a href="/checkout.html" class="active">✅ Поръчка</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>✅ Завършване на поръчката</h1>
+  <p>Попълнете данните за доставка и изберете куриер</p>
+</div>
+
+<div id="main-content">
+  <div class="checkout-wrapper">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Customer info -->
+      <div class="checkout-form-box" style="margin-bottom:20px">
+        <h2>👤 Данни за доставка</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Три имена *</label>
+            <input type="text" id="cust-name" placeholder="Иван Иванов" required>
+          </div>
+          <div class="form-group">
+            <label>Телефон *</label>
+            <input type="tel" id="cust-phone" placeholder="08X XXX XXX" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Имейл</label>
+            <input type="email" id="cust-email" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label>Град *</label>
+            <div class="city-search-wrap">
+              <input type="text" id="cust-city" placeholder="Напр. Варна" autocomplete="off" oninput="onCityInput(this.value)" required>
+              <div class="city-dropdown" id="city-dropdown"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Адрес *</label>
+            <input type="text" id="cust-address" placeholder="ул. Примерна 1, ет. 2, ап. 5" required>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Бележки към поръчката</label>
+            <textarea id="cust-notes" placeholder="Допълнителна информация за доставката..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery info -->
+      <div class="checkout-form-box" style="margin-bottom:20px;background:#f0fdf4;border:2px solid #86efac">
+        <h2 style="color:#15803d">🚚 Доставка — Безплатна</h2>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+          <div style="font-size:36px">🆓</div>
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#15803d">Безплатна доставка до адрес</div>
+            <div style="font-size:13px;color:#166534;margin-top:3px">Куриер: <strong>Интерлогистик</strong> · 1–3 работни дни</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:4px">Въведете адреса за доставка в полетата по-горе.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="checkout-form-box">
+        <h2>💳 Начин на плащане</h2>
+        <div class="payment-opts">
+          <label class="payment-opt selected" onclick="selectPayment('cod', this)">
+            <input type="radio" name="payment" value="cod" checked>
+            <div class="po-icon">💵</div>
+            <div class="po-name">Наложен платеж</div>
+            <div class="po-desc">Плащате при получаване на пакета</div>
+          </label>
+          <label class="payment-opt" onclick="selectPayment('bank', this)">
+            <input type="radio" name="payment" value="bank">
+            <div class="po-icon">🏦</div>
+            <div class="po-name">Банков превод</div>
+            <div class="po-desc">Превеждате сумата по банкова сметка преди изпращане</div>
+          </label>
+        </div>
+        <!-- Bank details — shown when bank transfer selected -->
+        <div id="bank-details-box" style="display:none;margin-top:14px;background:#f0f7ff;border:2px solid #c5d8f5;border-radius:10px;padding:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px">🏦 Банкови данни за превод</div>
+          <table style="font-size:13px;width:100%;border-collapse:collapse">
+            <tr><td style="color:var(--gray-txt);padding:4px 0;width:110px">Получател:</td><td style="font-weight:700">Геопласт ЕООД</td></tr>
+            <tr><td style="color:var(--gray-txt);padding:4px 0">Банка:</td><td style="font-weight:700">ОББ / Уникредит Булбанк</td></tr>
+            <tr><td style="color:var(--gray-txt);padding:4px 0">IBAN:</td><td style="font-weight:700;font-family:monospace">BG__ ____ ____ ____</td></tr>
+            <tr><td style="color:var(--gray-txt);padding:4px 0">BIC:</td><td style="font-weight:700;font-family:monospace">—</td></tr>
+            <tr><td style="color:var(--gray-txt);padding:4px 0">Основание:</td><td style="font-weight:700">Номер на поръчка (ще получите по имейл)</td></tr>
+          </table>
+          <div style="margin-top:10px;font-size:12px;color:#e67e00;background:#fff8e6;border-radius:6px;padding:8px">
+            ⚠️ Поръчката се изпраща след потвърждение на превода (1–2 работни дни).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN — Order summary -->
+    <div class="order-summary">
+      <div class="summary-box">
+        <h3>🛒 Вашата поръчка</h3>
+        <div id="order-items-list"></div>
+        <hr class="summary-divider">
+        <div class="summary-item"><span class="s-name">Продукти</span><span id="s-subtotal">0.00 €</span></div>
+        <div class="summary-item"><span class="s-name">Доставка (Интерлогистик)</span><span style="color:var(--green);font-weight:700">БЕЗПЛАТНА</span></div>
+        <div class="summary-total-row"><span>Общо</span><span class="amount" id="s-total">0.00 €</span></div>
+      </div>
+      <button class="btn-place-order" id="place-order-btn" onclick="placeOrder()">
+        ✅ Поръчай сега
+      </button>
+      <p class="delivery-note">🔒 Сигурна поръчка · Безплатна доставка · Интерлогистик 1–3 дни</p>
+    </div>
+
+  </div>
+</div>
+
+<footer style="margin-top:40px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД</span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+let selectedPayment = 'cod';
+
+function selectPayment(p, el) {
+  selectedPayment = p;
+  document.querySelectorAll('.payment-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  const bankBox = document.getElementById('bank-details-box');
+  if (bankBox) bankBox.style.display = p === 'bank' ? 'block' : 'none';
+}
+
+function updateSummary() {
+  const items = Cart.get();
+  const subtotal = Cart.total();
+  document.getElementById('s-subtotal').textContent = subtotal.toFixed(2) + ' €';
+  document.getElementById('s-total').textContent = subtotal.toFixed(2) + ' €';
+  const list = document.getElementById('order-items-list');
+  list.innerHTML = items.map(i =>
+    `<div class="summary-item"><span class="s-name">${esc(i.name.slice(0, 36))}${i.name.length > 36 ? '…' : ''} ×${i.qty}</span><span>${(i.price * i.qty).toFixed(2)} €</span></div>`
+  ).join('');
+}
+
+async function placeOrder() {
+  const name    = document.getElementById('cust-name').value.trim();
+  const phone   = document.getElementById('cust-phone').value.trim();
+  const city    = document.getElementById('cust-city').value.trim();
+  const address = document.getElementById('cust-address').value.trim();
+  if (!name || !phone || !city || !address) {
+    showToast('⚠️ Попълнете задължителните полета', 'error');
+    ['cust-name','cust-phone','cust-city','cust-address'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.toggle('error', !el.value.trim());
+    });
+    return;
+  }
+  const items = Cart.get();
+  if (!items.length) { showToast('Количката е празна', 'error'); return; }
+
+  const btn = document.getElementById('place-order-btn');
+  btn.disabled = true; btn.textContent = '⏳ Изпращане...';
+
+  try {
+    const res = await fetch('/api/orders', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer: { name, phone, email: document.getElementById('cust-email').value.trim(), city, address },
+        items: items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+        courier: 'interlogistik',
+        courier_price: 0,
+        payment_method: selectedPayment,
+        notes: document.getElementById('cust-notes').value.trim()
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      Cart.clear();
+      document.getElementById('main-content').innerHTML = `
+        <div class="checkout-wrapper" style="grid-template-columns:1fr">
+          <div class="order-success">
+            <div class="icon">🎉</div>
+            <h2>Поръчката е приета!</h2>
+            <div class="order-num">${data.order_number}</div>
+            <p>Благодарим Ви! Ще се свържем с Вас скоро за потвърждение. Доставката е безплатна чрез Интерлогистик.</p>
+            <p>Запазете номера на поръчката: <strong>${data.order_number}</strong></p>
+            <a href="/" style="display:inline-block;background:var(--orange);color:#fff;padding:12px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin:4px">← Към магазина</a>
+            <a href="/track.html" style="display:inline-block;background:#f5f5f5;color:var(--navy);padding:12px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin:4px">Проследи поръчката</a>
+          </div>
+        </div>`;
+    } else { throw new Error(data.error || 'Грешка'); }
+  } catch (e) {
+    showToast('Грешка: ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = '✅ Поръчай сега';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  Cart.updateHeader();
+  loadSettings();
+  const items = Cart.get();
+  if (!items.length) {
+    document.getElementById('main-content').innerHTML = `
+      <div style="max-width:600px;margin:40px auto;padding:0 20px">
+        <div class="order-success">
+          <div class="icon">🛒</div>
+          <h2 style="color:var(--navy)">Количката е празна</h2>
+          <p>Добавете продукти преди да поръчате</p>
+          <a href="/" style="display:inline-block;background:var(--orange);color:#fff;padding:12px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none">Към магазина →</a>
+        </div>
+      </div>`;
+    return;
+  }
+  updateSummary();
+});
+</script>
+</body>
+</html>

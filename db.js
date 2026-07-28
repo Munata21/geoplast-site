@@ -1,0 +1,175 @@
+// sql.js adapter — mirrors better-sqlite3's synchronous API
+// sql.js uses WebAssembly (no native compilation needed)
+const fs = require('fs');
+const path = require('path');
+
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'geoplast.db');
+let _db; // sql.js Database instance
+
+// ── Compatibility layer ───────────────────────────────────────────────────────
+function toParams(args) {
+  if (!args || !args.length) return [];
+  if (args.length === 1 && Array.isArray(args[0])) return args[0];
+  return Array.from(args);
+}
+
+function rowify(result) {
+  if (!result || !result.length || !result[0].values.length) return null;
+  const { columns, values } = result[0];
+  return values.map(row => Object.fromEntries(columns.map((c, i) => [c, row[i]])));
+}
+
+class Statement {
+  constructor(sql) { this._sql = sql; }
+
+  run(...args) {
+    _db.run(this._sql, toParams(args));
+    save();
+    const r = _db.exec('SELECT last_insert_rowid() as id');
+    return { lastInsertRowid: r[0]?.values[0][0] || 0, changes: 1 };
+  }
+
+  get(...args) {
+    const rows = rowify(_db.exec(this._sql, toParams(args)));
+    return rows ? rows[0] : undefined;
+  }
+
+  all(...args) {
+    return rowify(_db.exec(this._sql, toParams(args))) || [];
+  }
+}
+
+function save() {
+  fs.writeFileSync(DB_PATH, Buffer.from(_db.export()));
+}
+
+// Exported db object — same interface as better-sqlite3
+const db = {
+  prepare: (sql) => new Statement(sql),
+  exec: (sql) => { _db.run(sql); save(); return db; },
+  pragma: () => db,
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function initDB() {
+  const initSqlJs = require('sql.js');
+  const SQL = await initSqlJs();
+
+  if (fs.existsSync(DB_PATH)) {
+    _db = new SQL.Database(fs.readFileSync(DB_PATH));
+  } else {
+    _db = new SQL.Database();
+  }
+
+  // Create tables
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL NOT NULL,
+      old_price REAL,
+      category TEXT NOT NULL DEFAULT 'general',
+      code TEXT,
+      stock INTEGER DEFAULT 0,
+      unit TEXT DEFAULT 'бр.',
+      image TEXT,
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_number TEXT UNIQUE,
+      customer_name TEXT NOT NULL,
+      customer_phone TEXT NOT NULL,
+      customer_email TEXT,
+      customer_address TEXT NOT NULL,
+      customer_city TEXT NOT NULL,
+      courier TEXT NOT NULL DEFAULT 'speedy',
+      courier_city_id TEXT,
+      courier_price REAL DEFAULT 0,
+      payment_method TEXT DEFAULT 'cod',
+      notes TEXT,
+      status TEXT DEFAULT 'pending',
+      tracking_number TEXT,
+      products_total REAL NOT NULL,
+      total REAL NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS order_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id INTEGER REFERENCES orders(id),
+      product_id INTEGER,
+      product_name TEXT NOT NULL,
+      price REAL NOT NULL,
+      qty INTEGER NOT NULL
+    )
+  `);
+
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS subscribers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
+  save();
+
+  // Default settings
+  const defaults = [
+    ['logo', '/uploads/geoplast_logo.png'],
+    ['phone1', '0887 77 89 92'],
+    ['email', 'geoplast.v.eood@gmail.com'],
+    ['address', 'Варна, ЗПЗ, България'],
+    ['popup_title', '10% отстъпка за нови клиенти!'],
+    ['popup_text', 'Абонирайте се и получете 10% отстъпка от първата поръчка.'],
+    ['announcement', '🚚 Безплатна доставка в цялата страна | ✅ Сертифицирани продукти | 🏭 Директно от производителя | 📞 0887 77 89 92'],
+  ];
+  for (const [k, v] of defaults) {
+    _db.run('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', [k, v]);
+  }
+
+  // Seed products if empty
+  const count = (_db.exec('SELECT COUNT(*) as c FROM products')[0]?.values[0][0]) || 0;
+  if (count === 0) {
+    const ins = [
+      ['ДЮБЕЛИ ЗА ТОПЛОИЗОЛАЦИЯ С ПОЛИАМИДЕН ПИРОН', '', 17.04, null, 'dubeli-izolacia', 'GP-TI-POL', 500, 'бр.'],
+      ['Дюбел за бетон с голяма периферия за високи натоварвания', '', 106.02, null, 'dubeli-izolacia', 'GP-BET-PER', 200, 'бр.'],
+      ['Дюбел за вата', '', 53.69, null, 'dubeli-izolacia', 'GP-DV-MET', 500, 'бр.'],
+      ['Дюбел за тухла', '', 24.19, null, 'dubeli-izolacia', 'GP-DT-TER', 500, 'бр.'],
+      ['Дюбел за Бетон', '', 41.23, null, 'dubeli-izolacia', 'GP-DB-TER', 500, 'бр.'],
+      ['Дюбел за кабелни връзки', '', 49.05, null, 'dubeli-kabelni', 'GP-DKV-PVC', 400, 'бр.'],
+      ['Фиксатор за арматура – колонен', '', 32.52, null, 'fiksatori-armatura', 'GP-FA-KOL', 299, 'бр.'],
+      ['3D Ограничители за керамични изделия', '', 24.11, null, 'ogranicheteli', 'GP-3D-OGR', 400, 'бр.'],
+      ['Ограничители за керамични изделия', '', 17.79, null, 'ogranicheteli', 'GP-OGR-KER', 600, 'бр.'],
+      ['Клин за фуги', '', 30.68, null, 'klin-fugi', 'GP-KF-STD', 400, 'бр.'],
+      ['Клещи за самонивелиращи системи', '', 10.23, null, 'samoniveliraschi', 'GP-KL-SNS', 100, 'бр.'],
+      ['Самонивелираща система за плочки – затягаща гайка с винт', '', 20.71, null, 'samoniveliraschi', 'GP-SNS-GV', 300, 'бр.'],
+      ['Самонивелираща система за плочки с клин', '', 13.75, null, 'samoniveliraschi', 'GP-SNS-KL', 300, 'бр.'],
+    ];
+    for (const r of ins) {
+      _db.run('INSERT INTO products (name, description, price, old_price, category, code, stock, unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', r);
+    }
+  }
+
+  save();
+  console.log('✅ База данни инициализирана');
+}
+
+module.exports = { db, initDB };

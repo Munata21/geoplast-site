@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Администрация — Геопласт</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e}
+a{text-decoration:none;color:inherit}
+:root{--orange:#ff952b;--navy:#1a1a2e;--green:#38a169;--red:#e53e3e;--blue:#3182ce;--white:#fff;--border:#e2e8f0;--gray:#718096}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#2d3561)}
+.login-box{background:#fff;border-radius:14px;padding:40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.login-box .logo-icon{width:64px;height:64px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;margin:0 auto 16px}
+.login-box h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--gray);margin-bottom:24px}
+.login-box input{width:100%;border:2px solid var(--border);border-radius:8px;padding:12px 14px;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px}
+.login-box input:focus{border-color:var(--orange)}
+.login-box button{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.login-box button:hover{background:#e07a10}
+.login-error{color:var(--red);font-size:13px;margin-top:8px}
+
+/* Layout */
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:#fff}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.sidebar-logo .badge{font-size:10px;background:var(--orange);color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px;display:inline-block}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 20px 6px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--orange)}
+.nav-link .icon{font-size:16px;width:20px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px}
+.sidebar-footer a:hover{color:#fff}
+.main{flex:1;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:18px;font-weight:800;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.visit-btn{background:var(--orange);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.visit-btn:hover{background:#e07a10}
+.content{padding:24px 28px}
+
+/* Metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.metric-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid var(--orange)}
+.metric-card.green{border-left-color:var(--green)}
+.metric-card.blue{border-left-color:var(--blue)}
+.metric-card.red{border-left-color:var(--red)}
+.metric-label{font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.metric-val{font-size:28px;font-weight:900;color:var(--navy)}
+.metric-sub{font-size:12px;color:var(--gray);margin-top:4px}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-box{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.chart-box h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* Tables */
+.table-box{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px}
+.table-box h3{font-size:14px;font-weight:700;color:var(--navy);padding:16px 20px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f9fa;padding:10px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.sp-pending  {background:#fff3cd;color:#856404}
+.sp-confirmed{background:#d1ecf1;color:#0c5460}
+.sp-shipped  {background:#d4edda;color:#155724}
+.sp-delivered{background:#d4edda;color:#155724}
+.sp-cancelled{background:#f8d7da;color:#721c24}
+.view-link{color:var(--orange);font-size:12px;font-weight:600}
+.view-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="logo-icon">GP</div>
+    <h2>Геопласт Админ</h2>
+    <p>Въведете паролата за достъп</p>
+    <input type="password" id="admin-pass" placeholder="Парола..." onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Влез →</button>
+    <div class="login-error" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-wrap" id="admin-panel" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Геопласт</div>
+      <div class="sub">Администрация</div>
+      <div class="badge">🔧 Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Главно</div>
+      <a href="/admin/" class="nav-link active"><span class="icon">📊</span> Табло</a>
+      <div class="nav-section">Магазин</div>
+      <a href="/admin/orders.html" class="nav-link"><span class="icon">📦</span> Поръчки</a>
+      <a href="/admin/products.html" class="nav-link"><span class="icon">🔩</span> Продукти</a>
+      <div class="nav-section">Настройки</div>
+      <a href="/admin/settings.html" class="nav-link"><span class="icon">⚙️</span> Настройки</a>
+      <a href="/admin/subscribers.html" class="nav-link"><span class="icon">✉️</span> Абонати</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank">🌐 Виж магазина</a>
+      <a href="#" onclick="doLogout()" style="margin-top:10px">🚪 Изход</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="page-title">📊 Табло</h1>
+      <div class="topbar-right">
+        <span style="font-size:13px;color:var(--gray)" id="topbar-date"></span>
+        <button class="visit-btn" onclick="window.open('/', '_blank')">🌐 Виж магазина</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Metrics -->
+      <div class="metrics" id="metrics-grid">
+        <div class="metric-card"><div class="metric-label">Приходи днес</div><div class="metric-val" id="m-today">—</div><div class="metric-sub">лв.</div></div>
+        <div class="metric-card green"><div class="metric-label">Приходи месец</div><div class="metric-val" id="m-month">—</div><div class="metric-sub">последните 30 дни</div></div>
+        <div class="metric-card blue"><div class="metric-label">Поръчки чакащи</div><div class="metric-val" id="m-pending">—</div><div class="metric-sub"><a href="/admin/orders.html" style="color:var(--blue)">виж всички →</a></div></div>
+        <div class="metric-card red"><div class="metric-label">Абонати</div><div class="metric-val" id="m-subs">—</div><div class="metric-sub">имейл newsletter</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-box">
+          <h3>💰 Приходи последните 30 дни</h3>
+          <canvas id="revenue-chart" height="90"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>📦 Поръчки по статус</h3>
+          <canvas id="status-chart" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Top products -->
+        <div class="table-box">
+          <h3>🔥 Топ продукти</h3>
+          <table>
+            <thead><tr><th>Продукт</th><th>Бр.</th><th>Приход</th></tr></thead>
+            <tbody id="top-products-table"></tbody>
+          </table>
+        </div>
+        <!-- Recent orders -->
+        <div class="table-box">
+          <h3>🕐 Последни поръчки</h3>
+          <table>
+            <thead><tr><th>Номер</th><th>Клиент</th><th>Сума</th><th>Статус</th></tr></thead>
+            <tbody id="recent-orders-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATUS_LABELS = { pending:'В изчакване', confirmed:'Потвърдена', shipped:'Изпратена', delivered:'Доставена', cancelled:'Отменена' };
+let revenueChart, statusChart;
+
+async function doLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pass }) });
+  if (res.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadDashboard();
+  } else {
+    document.getElementById('login-err').textContent = 'Грешна парола';
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/admin/logout', { method:'POST' });
+  location.reload();
+}
+
+async function checkAuth() {
+  const res = await fetch('/api/admin/check');
+  const data = await res.json();
+  if (data.isAdmin) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadDashboard();
+  }
+}
+
+async function loadDashboard() {
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('bg-BG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  try {
+    const res = await fetch('/api/analytics');
+    const d = await res.json();
+
+    document.getElementById('m-today').textContent = parseFloat(d.revenue_today).toFixed(2) + ' €';
+    document.getElementById('m-month').textContent = parseFloat(d.revenue_month).toFixed(2) + ' €';
+    document.getElementById('m-pending').textContent = d.orders_pending;
+    document.getElementById('m-subs').textContent = d.total_subscribers;
+
+    // Revenue chart
+    const days = d.revenue_by_day || [];
+    const labels = days.map(r => new Date(r.day).toLocaleDateString('bg-BG', { day:'2-digit', month:'short' }));
+    const revenues = days.map(r => parseFloat(r.revenue).toFixed(2));
+
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(document.getElementById('revenue-chart'), {
+      type: 'line',
+      data: {
+        labels, datasets: [{ label: 'Приходи (€)', data: revenues, borderColor: '#ff952b', backgroundColor: 'rgba(255,149,43,.1)', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#ff952b' }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' €' } } } }
+    });
+
+    // Status pie chart
+    const breakdown = d.status_breakdown || [];
+    const statusColors = { pending:'#ffd700', confirmed:'#3182ce', shipped:'#38a169', delivered:'#2d6a4f', cancelled:'#e53e3e' };
+    if (statusChart) statusChart.destroy();
+    statusChart = new Chart(document.getElementById('status-chart'), {
+      type: 'doughnut',
+      data: {
+        labels: breakdown.map(b => STATUS_LABELS[b.status] || b.status),
+        datasets: [{ data: breakdown.map(b => b.count), backgroundColor: breakdown.map(b => statusColors[b.status] || '#999'), borderWidth: 2 }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 8 } } } }
+    });
+
+    // Top products
+    const tp = document.getElementById('top-products-table');
+    tp.innerHTML = (d.top_products || []).length
+      ? d.top_products.map(p => `<tr><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(p.product_name)}">${esc(p.product_name.slice(0,40))}${p.product_name.length>40?'…':''}</td><td>${p.total_qty}</td><td style="font-weight:700;color:#ff952b">${parseFloat(p.total_revenue).toFixed(2)} €</td></tr>`).join('')
+      : '<tr><td colspan="3" style="text-align:center;color:#999;padding:20px">Няма данни</td></tr>';
+
+    // Recent orders
+    const ro = document.getElementById('recent-orders-table');
+    ro.innerHTML = (d.recent_orders || []).length
+      ? d.recent_orders.map(o => `<tr>
+          <td><a href="/admin/orders.html?id=${o.id}" style="color:#ff952b;font-weight:700;font-size:12px">${o.order_number}</a></td>
+          <td style="font-size:12px">${esc(o.customer_name)}</td>
+          <td style="font-weight:700">${parseFloat(o.total).toFixed(2)} €</td>
+          <td><span class="status-pill sp-${o.status}">${STATUS_LABELS[o.status]||o.status}</span></td>
+        </tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">Няма поръчки</td></tr>';
+
+  } catch(e) { console.error(e); }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', checkAuth);
+document.getElementById('admin-pass')?.addEventListener('keydown', e => e.key === 'Enter' && doLogin());
+</script>
+</body>
+</html>

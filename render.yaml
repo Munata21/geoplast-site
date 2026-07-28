@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: geoplast-shop
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_PATH
+        value: /var/data/geoplast.db
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+    disk:
+      name: geoplast-data
+      mountPath: /var/data
+      sizeGB: 1

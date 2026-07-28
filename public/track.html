@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проследяване — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.track-page { max-width: 680px; margin: 40px auto; padding: 0 20px; }
+.track-box { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,.09); margin-bottom: 24px; }
+.track-input-row { display: flex; gap: 10px; }
+.track-input-row input { flex: 1; border: 2px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 16px; outline: none; transition: border-color .2s; font-family: inherit; }
+.track-input-row input:focus { border-color: var(--orange); }
+.track-input-row button { background: var(--orange); color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 15px; font-weight: 700; transition: background .2s; white-space: nowrap; }
+.track-input-row button:hover { background: var(--orange-dark); }
+.result-box { background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,.09); display: none; }
+.result-box.show { display: block; }
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+.status-pending   { background: #fff3cd; color: #856404; }
+.status-confirmed { background: #d1ecf1; color: #0c5460; }
+.status-shipped   { background: #d4edda; color: #155724; }
+.status-delivered { background: #d4edda; color: #155724; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+.track-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.track-detail-item { background: #f8f8f8; border-radius: 8px; padding: 12px 16px; }
+.track-detail-item .label { font-size: 11px; color: var(--gray-txt); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.track-detail-item .value { font-size: 14px; font-weight: 700; color: var(--navy); }
+.track-timeline { list-style: none; padding: 0; }
+.track-timeline li { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; position: relative; }
+.track-timeline li:last-child { border-bottom: none; }
+.tl-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.tl-dot.done { background: var(--green); }
+.tl-dot.pending { background: #e0e0e0; }
+.tl-content strong { display: block; font-size: 14px; font-weight: 700; color: var(--navy); }
+.tl-content span { font-size: 12px; color: var(--gray-txt); }
+.not-found { text-align: center; padding: 30px; color: var(--gray-txt); }
+.not-found .icon { font-size: 48px; margin-bottom: 12px; }
+.info-box { background: linear-gradient(135deg, #1a1a2e, #2d2d50); border-radius: 12px; padding: 24px; color: #fff; text-align: center; margin-bottom: 24px; }
+.info-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.info-box p { font-size: 13px; color: rgba(255,255,255,.65); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span>🚚 Проследете вашата пратка | Speedy & Econt | 📞 052 76 14 46</span></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon" id="site-logo">GP</div>
+      <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+    </a>
+    <div style="flex:1"></div>
+    <div class="header-right">
+      <a href="/cart.html" class="cart-btn">🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/#products-section">Магазин</a>
+      <a href="/cart.html">🛒 Количка</a>
+      <a href="/track.html" class="active">📦 Проследяване</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>📦 Проследяване на пратка</h1>
+  <p>Въведете номер на поръчка или товарителница</p>
+</div>
+
+<div class="track-page">
+
+  <div class="track-box">
+    <p style="font-size:14px;color:var(--gray-txt);margin-bottom:16px">Въведете <strong>номер на поръчка</strong> (напр. GP-12345678) или <strong>номер на товарителница</strong> от Speedy:</p>
+    <div class="track-input-row">
+      <input type="text" id="track-input" placeholder="GP-12345678 или товарителница..." onkeydown="if(event.key==='Enter')trackOrder()">
+      <button onclick="trackOrder()">🔍 Провери</button>
+    </div>
+  </div>
+
+  <div class="result-box" id="result-box"></div>
+
+  <div class="info-box">
+    <h3>📞 Нужна е помощ?</h3>
+    <p>Свържете се с нас на <strong style="color:var(--orange)">052 76 14 46</strong> или <strong style="color:var(--orange)">0887 77 89 92</strong><br>Работно време: понеделник – петък, 08:00 – 17:30</p>
+  </div>
+
+</div>
+
+<footer style="margin-top:20px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД</span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+const STATUS_LABELS = {
+  pending:   { label: '⏳ Изчаква потвърждение', cls: 'status-pending' },
+  confirmed: { label: '✅ Потвърдена',            cls: 'status-confirmed' },
+  shipped:   { label: '🚚 Изпратена',             cls: 'status-shipped' },
+  delivered: { label: '🎉 Доставена',             cls: 'status-delivered' },
+  cancelled: { label: '❌ Отменена',              cls: 'status-cancelled' }
+};
+
+const TIMELINE_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
+const TIMELINE_LABELS = {
+  pending:   { icon: '📋', label: 'Получена поръчка', desc: 'Поръчката е регистрирана в системата' },
+  confirmed: { icon: '✅', label: 'Потвърдена',        desc: 'Поръчката е потвърдена и се подготвя' },
+  shipped:   { icon: '🚚', label: 'Изпратена',         desc: 'Пратката е предадена на куриера' },
+  delivered: { icon: '🎉', label: 'Доставена',         desc: 'Пратката е доставена успешно' }
+};
+
+async function trackOrder() {
+  const num = document.getElementById('track-input').value.trim();
+  if (!num) return;
+  const box = document.getElementById('result-box');
+  box.classList.add('show');
+  box.innerHTML = '<div class="loading"><div class="spinner"></div><br>Проверяване...</div>';
+
+  try {
+    const res = await fetch(`/api/track/${encodeURIComponent(num)}`);
+    const data = await res.json();
+
+    if (!data.found) {
+      box.innerHTML = `
+        <div class="not-found">
+          <div class="icon">🔍</div>
+          <p><strong>Не е намерена пратка</strong> с номер <em>${esc(num)}</em></p>
+          <p style="font-size:12px;margin-top:8px">Проверете дали сте въвели правилния номер или се свържете с нас.</p>
+        </div>`;
+      return;
+    }
+
+    if (data.source === 'internal') {
+      const o = data.order;
+      const st = STATUS_LABELS[o.status] || STATUS_LABELS.pending;
+      const stIdx = TIMELINE_STEPS.indexOf(o.status);
+      const timeline = TIMELINE_STEPS.map((step, i) => {
+        const t = TIMELINE_LABELS[step];
+        const done = i <= stIdx && o.status !== 'cancelled';
+        const cls = done ? 'done' : 'pending';
+        return `<li>
+          <div class="tl-dot ${cls}">${t.icon}</div>
+          <div class="tl-content">
+            <strong style="color:${done ? 'var(--navy)' : '#bbb'}">${t.label}</strong>
+            <span>${t.desc}</span>
+          </div>
+        </li>`;
+      }).join('');
+
+      box.innerHTML = `
+        <div class="status-badge ${st.cls}">${st.label}</div>
+        <div class="track-detail">
+          <div class="track-detail-item"><div class="label">Номер на поръчка</div><div class="value">${esc(o.order_number)}</div></div>
+          <div class="track-detail-item"><div class="label">Дата</div><div class="value">${new Date(o.created_at).toLocaleDateString('bg-BG')}</div></div>
+          <div class="track-detail-item"><div class="label">Куриер</div><div class="value">${o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt'}</div></div>
+          <div class="track-detail-item"><div class="label">Товарителница</div><div class="value">${o.tracking_number || '—'}</div></div>
+          <div class="track-detail-item"><div class="label">Сума</div><div class="value" style="color:var(--orange)">${parseFloat(o.total).toFixed(2)} €</div></div>
+          <div class="track-detail-item"><div class="label">Плащане</div><div class="value">${o.payment_method === 'cod' ? '💵 Наложен платеж' : '🏦 Банков превод'}</div></div>
+        </div>
+        <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Статус на поръчката:</h3>
+        <ul class="track-timeline">${timeline}</ul>
+        ${o.tracking_number ? `<div style="margin-top:16px;padding:12px 16px;background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;font-size:13px;color:#155724">
+          🚚 Товарителница: <strong>${o.tracking_number}</strong> — можете да следите директно на сайта на ${o.courier === 'speedy' ? 'Speedy' : 'Econt'}
+        </div>` : ''}`;
+
+    } else if (data.source === 'speedy' && data.parcel) {
+      const p = data.parcel;
+      box.innerHTML = `
+        <div class="status-badge status-shipped">⚡ Speedy пратка</div>
+        <div class="track-detail">
+          <div class="track-detail-item"><div class="label">Товарителница</div><div class="value">${esc(p.id || num)}</div></div>
+          <div class="track-detail-item"><div class="label">Статус</div><div class="value">${esc(p.operations?.[0]?.description || 'В движение')}</div></div>
+        </div>
+        <ul class="track-timeline">
+          ${(p.operations || []).slice(0, 6).map(op => `
+            <li>
+              <div class="tl-dot done">⚡</div>
+              <div class="tl-content">
+                <strong>${esc(op.description || '')}</strong>
+                <span>${op.dateTime ? new Date(op.dateTime).toLocaleString('bg-BG') : ''} ${op.place ? '· ' + esc(op.place) : ''}</span>
+              </div>
+            </li>`).join('')}
+        </ul>`;
+    }
+  } catch (e) {
+    box.innerHTML = `<div class="not-found"><p>Грешка при проверка: ${e.message}</p></div>`;
+  }
+}
+
+// Auto-track if ?order= in URL
+document.addEventListener('DOMContentLoaded', () => {
+  Cart.updateHeader();
+  loadSettings();
+  const params = new URLSearchParams(window.location.search);
+  const orderNum = params.get('order');
+  if (orderNum) {
+    document.getElementById('track-input').value = orderNum;
+    trackOrder();
+  }
+});
+</script>
+</body>
+</html>

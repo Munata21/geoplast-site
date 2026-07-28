@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Продукти — Геопласт Админ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e}
+a{text-decoration:none;color:inherit}
+:root{--orange:#ff952b;--navy:#1a1a2e;--green:#38a169;--red:#e53e3e;--white:#fff;--border:#e2e8f0;--gray:#718096}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:#fff}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 20px 6px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--orange)}
+.nav-link .icon{font-size:16px;width:20px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:10px}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4)}
+.sidebar-footer a:hover{color:#fff}
+.main{flex:1;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:18px;font-weight:800;color:var(--navy)}
+.content{padding:24px 28px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:#e07a10}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#c53030}
+.btn-secondary{background:#f0f2f5;color:var(--navy);border:1px solid var(--border)}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#2d7a57}
+.table-box{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px}
+.table-toolbar .search{flex:1;max-width:320px;border:2px solid var(--border);border-radius:8px;padding:8px 14px;font-size:14px;outline:none}
+.table-toolbar .search:focus{border-color:var(--orange)}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f9fa;padding:10px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.product-thumb{width:44px;height:44px;border-radius:7px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0}
+.product-thumb img{width:100%;height:100%;object-fit:contain;padding:3px}
+.stock-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.stock-ok{background:#d4edda;color:#155724}
+.stock-low{background:#fff3cd;color:#856404}
+.stock-out{background:#f8d7da;color:#721c24}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-header h2{font-size:16px;font-weight:800;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:22px;color:#999;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--navy)}
+.modal-body{padding:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:2px solid var(--border);border-radius:7px;padding:9px 12px;font-size:14px;outline:none;transition:border-color .2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange)}
+.form-group textarea{min-height:80px;resize:vertical}
+.img-upload-area{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.img-upload-area:hover{border-color:var(--orange);background:#fff8f0}
+.img-upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.img-preview{width:120px;height:120px;object-fit:contain;border-radius:8px;border:2px solid var(--border);padding:6px;margin:10px auto 0;display:block}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+/* Logo upload section */
+.logo-section{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px;display:flex;align-items:center;gap:20px}
+.logo-preview-box{width:80px;height:80px;background:#f0f0f0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:var(--orange);overflow:hidden;flex-shrink:0;border:2px solid var(--border)}
+.logo-preview-box img{width:100%;height:100%;object-fit:contain;padding:6px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:4px solid var(--green)}
+.toast.error{border-left:4px solid var(--red)}
+.login-overlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#2d3561);z-index:2000;align-items:center;justify-content:center}
+.login-overlay.open{display:flex}
+.login-box{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box .logo-icon{width:60px;height:60px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;margin:0 auto 14px}
+.login-box h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.login-box p{font-size:13px;color:var(--gray);margin-bottom:20px}
+.login-box input{width:100%;border:2px solid var(--border);border-radius:8px;padding:11px 14px;font-size:15px;margin-bottom:12px;outline:none}
+.login-box input:focus{border-color:var(--orange)}
+.login-box button{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+.login-box button:hover{background:#e07a10}
+.login-err{color:var(--red);font-size:13px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div class="login-overlay open" id="login-overlay">
+  <div class="login-box">
+    <div class="logo-icon">GP</div>
+    <h2>Геопласт Админ</h2>
+    <p>Въведете парола за достъп</p>
+    <input type="password" id="admin-pass" placeholder="Парола..." onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Влез →</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Геопласт</div>
+      <div class="sub">Администрация</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Главно</div>
+      <a href="/admin/" class="nav-link"><span class="icon">📊</span> Табло</a>
+      <div class="nav-section">Магазин</div>
+      <a href="/admin/orders.html" class="nav-link"><span class="icon">📦</span> Поръчки</a>
+      <a href="/admin/products.html" class="nav-link active"><span class="icon">🔩</span> Продукти</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank">🌐 Виж магазина</a>
+      <a href="#" onclick="doLogout()">🚪 Изход</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>🔩 Управление на продукти</h1>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-secondary btn-sm" onclick="openLogoModal()">🖼️ Качи лого</button>
+        <button class="btn btn-primary" onclick="openModal()">+ Нов продукт</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Logo section -->
+      <div class="logo-section" id="logo-section">
+        <div class="logo-preview-box" id="logo-preview-box">GP</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px">Лого на магазина</div>
+          <div style="font-size:13px;color:var(--gray);margin-bottom:12px">PNG, JPG или SVG файл. Препоръчван размер: 200×200 px</div>
+          <label style="display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;border-radius:7px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">
+            📁 Избери файл
+            <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(this)">
+          </label>
+        </div>
+      </div>
+
+      <!-- Products table -->
+      <div class="table-box">
+        <div class="table-toolbar">
+          <input class="search" type="text" placeholder="🔍 Търси продукт..." oninput="filterProducts(this.value)">
+          <select id="cat-filter" onchange="filterProducts()" style="border:2px solid var(--border);border-radius:7px;padding:8px 12px;font-size:14px;outline:none">
+            <option value="">Всички категории</option>
+            <option value="dubeli-izolacia">Дюбели за изолация</option>
+            <option value="dubeli-kabelni">Дюбели кабелни</option>
+            <option value="fiksatori-armatura">Фиксатори арматура</option>
+            <option value="ogranicheteli">Ограничители</option>
+            <option value="klin-fugi">Клин за фуги</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px"></th>
+              <th>Продукт</th>
+              <th>Категория</th>
+              <th>Код</th>
+              <th>Цена</th>
+              <th>Наличност</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:30px;color:#999">Зареждане...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product modal -->
+<div class="modal-overlay" id="product-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Нов продукт</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+
+      <!-- Image upload -->
+      <div class="form-row full" style="margin-bottom:18px">
+        <div class="form-group">
+          <label>Снимка на продукта</label>
+          <div class="img-upload-area" onclick="document.getElementById('product-img-input').click()">
+            <input type="file" id="product-img-input" accept="image/*" style="display:none" onchange="previewImg(this)">
+            <div id="img-upload-hint" style="color:#999;font-size:14px">📁 Кликнете за качване на снимка<br><span style="font-size:12px">JPG, PNG, WEBP · Макс. 8MB</span></div>
+            <img id="img-preview" class="img-preview" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Наименование *</label>
+          <input type="text" id="f-name" placeholder="Дюбел за изолация 10×100 мм">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea id="f-desc" placeholder="Описание на продукта..."></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Цена (€) *</label>
+          <input type="number" id="f-price" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>Стара цена (€)</label>
+          <input type="number" id="f-old-price" step="0.01" min="0" placeholder="оставете празно ако няма">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Категория *</label>
+          <select id="f-category">
+            <option value="dubeli-izolacia">Дюбели за изолация</option>
+            <option value="dubeli-kabelni">Дюбели за кабелни връзки</option>
+            <option value="fiksatori-armatura">Фиксатори за арматура</option>
+            <option value="ogranicheteli">Ограничители за керамика</option>
+            <option value="klin-fugi">Клин за фуги</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Код на продукта</label>
+          <input type="text" id="f-code" placeholder="GP-DB-100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Наличност (бр.)</label>
+          <input type="number" id="f-stock" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Мерна единица</label>
+          <select id="f-unit">
+            <option value="бр.">бр.</option>
+            <option value="пак.">пак.</option>
+            <option value="кг.">кг.</option>
+            <option value="м.">м.</option>
+            <option value="кутия">кутия</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Отказ</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 Запази</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let allProducts = [];
+let editingId = null;
+let selectedFile = null;
+let catEmojis = { 'dubeli-izolacia':'🔩','dubeli-kabelni':'🔗','fiksatori-armatura':'🔧','ogranicheteli':'🧱','klin-fugi':'📐' };
+let catNames = { 'dubeli-izolacia':'Дюбели изолация','dubeli-kabelni':'Дюбели кабелни','fiksatori-armatura':'Фиксатори арматура','ogranicheteli':'Ограничители','klin-fugi':'Клин фуги' };
+
+async function doLogin() {
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: document.getElementById('admin-pass').value }) });
+  if (res.ok) { document.getElementById('login-overlay').classList.remove('open'); loadProducts(); loadLogoPreview(); }
+  else document.getElementById('login-err').textContent = 'Грешна парола';
+}
+async function doLogout() { await fetch('/api/admin/logout',{method:'POST'}); location.href='/admin/'; }
+async function checkAuth() {
+  const d = await (await fetch('/api/admin/check')).json();
+  if (d.isAdmin) { document.getElementById('login-overlay').classList.remove('open'); loadProducts(); loadLogoPreview(); }
+}
+
+async function loadLogoPreview() {
+  const s = await (await fetch('/api/settings')).json();
+  if (s.logo) {
+    const box = document.getElementById('logo-preview-box');
+    box.innerHTML = `<img src="${s.logo}" alt="Logo">`;
+  }
+}
+
+async function uploadLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('logo', file);
+  const res = await fetch('/api/settings/logo', { method:'POST', body: fd });
+  if (res.ok) {
+    const d = await res.json();
+    document.getElementById('logo-preview-box').innerHTML = `<img src="${d.path}?t=${Date.now()}" alt="Logo">`;
+    showToast('✅ Логото е качено успешно!', 'success');
+  } else showToast('Грешка при качване', 'error');
+}
+
+async function loadProducts() {
+  const cat = document.getElementById('cat-filter').value;
+  const params = new URLSearchParams();
+  if (cat) params.set('category', cat);
+  const res = await fetch('/api/products?' + params.toString() + '&limit=200');
+  // Also get inactive ones — need admin view; for now show active
+  allProducts = await res.json();
+  renderProducts(allProducts);
+}
+
+function filterProducts(search) {
+  const s = (search || document.querySelector('.search').value || '').toLowerCase();
+  const cat = document.getElementById('cat-filter').value;
+  const filtered = allProducts.filter(p =>
+    (!cat || p.category === cat) &&
+    (!s || p.name.toLowerCase().includes(s) || (p.code||'').toLowerCase().includes(s))
+  );
+  renderProducts(filtered);
+}
+
+function renderProducts(products) {
+  const tbody = document.getElementById('products-tbody');
+  if (!products.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:#999">Няма продукти</td></tr>';
+    return;
+  }
+  tbody.innerHTML = products.map(p => {
+    const thumb = p.image
+      ? `<div class="product-thumb"><img src="${p.image}" alt=""></div>`
+      : `<div class="product-thumb">${catEmojis[p.category]||'📦'}</div>`;
+    const stockCls = p.stock > 10 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+    const stockLbl = p.stock > 10 ? 'В наличност' : p.stock > 0 ? 'Малко' : 'Изчерпан';
+    return `<tr>
+      <td>${thumb}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px;line-height:1.3;max-width:220px">${esc(p.name)}</div>
+        ${p.old_price ? `<div style="font-size:11px;color:#e53e3e;margin-top:2px">-${Math.round((1-p.price/p.old_price)*100)}% отстъпка</div>` : ''}
+      </td>
+      <td style="font-size:12px">${catNames[p.category]||p.category}</td>
+      <td style="font-family:monospace;font-size:12px;color:#666">${p.code||'—'}</td>
+      <td><strong style="color:#ff952b">${parseFloat(p.price).toFixed(2)} €</strong>${p.old_price?`<br><span style="font-size:11px;color:#bbb;text-decoration:line-through">${parseFloat(p.old_price).toFixed(2)} €</span>`:''}</td>
+      <td><span class="stock-badge ${stockCls}">${stockLbl} (${p.stock})</span></td>
+      <td><span style="font-size:12px;color:${p.active?'var(--green)':'#bbb'};font-weight:700">${p.active?'✅ Активен':'⏸ Скрит'}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})">✏️ Редактирай</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id},'${esc(p.name.slice(0,30))}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openModal(id) {
+  editingId = null;
+  selectedFile = null;
+  document.getElementById('modal-title').textContent = 'Нов продукт';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-old-price').value = '';
+  document.getElementById('f-category').value = 'dubeli-izolacia';
+  document.getElementById('f-code').value = '';
+  document.getElementById('f-stock').value = '0';
+  document.getElementById('f-unit').value = 'бр.';
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('img-upload-hint').style.display = 'block';
+  document.getElementById('product-img-input').value = '';
+  document.getElementById('product-modal').classList.add('open');
+}
+
+async function editProduct(id) {
+  const p = await (await fetch(`/api/products/${id}`)).json();
+  editingId = id;
+  selectedFile = null;
+  document.getElementById('modal-title').textContent = 'Редактиране на продукт';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('f-name').value = p.name;
+  document.getElementById('f-desc').value = p.description||'';
+  document.getElementById('f-price').value = p.price;
+  document.getElementById('f-old-price').value = p.old_price||'';
+  document.getElementById('f-category').value = p.category;
+  document.getElementById('f-code').value = p.code||'';
+  document.getElementById('f-stock').value = p.stock||0;
+  document.getElementById('f-unit').value = p.unit||'бр.';
+  if (p.image) {
+    document.getElementById('img-preview').src = p.image;
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('img-upload-hint').style.display = 'none';
+  } else {
+    document.getElementById('img-preview').style.display = 'none';
+    document.getElementById('img-upload-hint').style.display = 'block';
+  }
+  document.getElementById('product-img-input').value = '';
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('product-modal').classList.remove('open');
+}
+
+function previewImg(input) {
+  selectedFile = input.files[0];
+  if (!selectedFile) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview').style.display = 'block';
+    document.getElementById('img-upload-hint').style.display = 'none';
+  };
+  reader.readAsDataURL(selectedFile);
+}
+
+async function saveProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  const price = document.getElementById('f-price').value;
+  if (!name || !price) { showToast('⚠️ Попълнете задължителните полета', 'error'); return; }
+
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('description', document.getElementById('f-desc').value);
+  fd.append('price', price);
+  fd.append('old_price', document.getElementById('f-old-price').value);
+  fd.append('category', document.getElementById('f-category').value);
+  fd.append('code', document.getElementById('f-code').value);
+  fd.append('stock', document.getElementById('f-stock').value||'0');
+  fd.append('unit', document.getElementById('f-unit').value);
+  fd.append('active', '1');
+  if (selectedFile) fd.append('image', selectedFile);
+
+  const url = editingId ? `/api/products/${editingId}` : '/api/products';
+  const method = editingId ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, body: fd });
+  if (res.ok) {
+    closeModal();
+    showToast(editingId ? '✅ Продуктът е обновен' : '✅ Продуктът е добавен', 'success');
+    loadProducts();
+  } else showToast('Грешка при запис', 'error');
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm(`Скриване на "${name}"?`)) return;
+  const res = await fetch(`/api/products/${id}`, { method:'DELETE' });
+  if (res.ok) { showToast('Продуктът е скрит', 'success'); loadProducts(); }
+  else showToast('Грешка', 'error');
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', checkAuth);
+</script>
+</body>
+</html>
