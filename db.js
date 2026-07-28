@@ -168,6 +168,26 @@ async function initDB() {
     }
   }
 
+  // Backfill images for products seeded without image paths
+  const imageMap = [
+    ['GP-TI-POL',  '/images/products/wp_1158.png'],
+    ['GP-BET-PER', '/images/products/wp_1159.png'],
+    ['GP-DV-MET',  '/images/products/wp_1777.jpeg'],
+    ['GP-DT-TER',  '/images/products/wp_1775.png'],
+    ['GP-DB-TER',  '/images/products/wp_1759.png'],
+    ['GP-DKV-PVC', '/images/products/wp_865.jpg'],
+    ['GP-FA-KOL',  '/images/products/wp_870.jpg'],
+    ['GP-3D-OGR',  '/images/products/wp_1769.png'],
+    ['GP-OGR-KER', '/images/products/wp_871.jpg'],
+    ['GP-KF-STD',  '/images/products/wp_1162.png'],
+    ['GP-KL-SNS',  '/images/products/wp_1770.png'],
+    ['GP-SNS-GV',  '/images/products/wp_1754.png'],
+    ['GP-SNS-KL',  '/images/products/wp_1751.jpg'],
+  ];
+  for (const [code, img] of imageMap) {
+    _db.run('UPDATE products SET image = ? WHERE code = ? AND image IS NULL', [img, code]);
+  }
+
   save();
   console.log('✅ База данни инициализирана');
 }
