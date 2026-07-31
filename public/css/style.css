@@ -31,10 +31,12 @@ button { cursor: pointer; font-family: inherit; }
 
 /* ── Header ── */
 .header { background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; }
-.header-inner { max-width: 1280px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 20px; height: 70px; }
-.logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.logo-icon { width: 46px; height: 46px; background: var(--orange); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 18px; flex-shrink: 0; overflow: hidden; }
-.logo-icon img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 5px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 16px; min-height: 38px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+.logo-band { background: #fff; }
+.logo-band-inner { max-width: 1280px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 20px; }
+.logo { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.logo-icon { width: 110px; height: 72px; background: var(--orange); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 22px; flex-shrink: 0; overflow: hidden; }
+.logo-icon img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
 .logo-name { font-size: 22px; font-weight: 900; color: var(--navy); line-height: 1.1; }
 .logo-sub { font-size: 10px; color: var(--gray-txt); text-transform: uppercase; letter-spacing: 1px; }
 .search-bar { flex: 1; display: flex; border: 2px solid var(--orange); border-radius: 8px; overflow: hidden; max-width: 560px; }
@@ -42,8 +44,9 @@ button { cursor: pointer; font-family: inherit; }
 .search-bar button { background: var(--orange); border: none; padding: 0 18px; color: #fff; font-size: 16px; transition: background .2s; }
 .search-bar button:hover { background: var(--orange-dark); }
 .header-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-.header-phone a { font-size: 17px; font-weight: 700; color: var(--navy); }
+.header-phone a { font-size: 15px; font-weight: 700; color: var(--navy); }
 .header-phone span { display: block; font-size: 11px; color: var(--gray-txt); }
+.header-phone { display: flex; flex-direction: column; align-items: flex-end; }
 .cart-btn { position: relative; background: none; border: 2px solid var(--orange); border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--navy); transition: all .2s; }
 .cart-btn:hover { background: var(--orange); color: #fff; }
 .cart-count { background: var(--red); color: #fff; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 10px; min-width: 20px; text-align: center; }
@@ -241,7 +244,6 @@ footer { background: var(--navy); color: #fff; margin-top: 32px; }
   .products-grid { grid-template-columns: 1fr; }
   .trust-inner { grid-template-columns: 1fr; }
   .trust-item { border-right: none; border-bottom: 1px solid var(--border); }
-  .header-phone { display: none; }
 }
 
 /* ── Fade-in animations ── */
@@ -355,11 +357,17 @@ footer { background: var(--navy); color: #fff; margin-top: 32px; }
   .cat-card-icon { font-size: 26px; }
   .cat-card-name { font-size: 11px; }
   .footer-inner { padding: 24px 16px 16px; }
+  .logo-band-inner { padding: 10px 14px; gap: 12px; }
+  .logo-icon { width: 80px; height: 56px; }
+  .search-bar { max-width: 100%; }
 }
 @media (max-width: 480px) {
-  .header-inner { flex-wrap: wrap; height: auto; padding: 10px 14px; }
+  .header-inner { padding: 5px 14px; }
+  .header-phone { display: none !important; }
+  .logo-band-inner { flex-wrap: wrap; }
   .search-bar { order: 3; width: 100%; max-width: 100%; }
   .logo { flex: 1; }
-  .header-right .header-phone { display: none; }
-  .cart-btn { padding: 8px 12px; font-size: 13px; }
+  .cart-btn { padding: 6px 10px; font-size: 13px; }
+  .logo-icon { width: 72px; height: 50px; font-size: 18px; }
+  .logo-name { font-size: 18px; }
 }

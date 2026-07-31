@@ -24,25 +24,27 @@
 <!-- HEADER -->
 <header class="header">
   <div class="header-inner">
-    <a href="/" class="logo">
-      <div class="logo-icon" id="site-logo">GP</div>
-      <div>
-        <div class="logo-name">Геопласт</div>
-        <div class="logo-sub">Крепежни Елементи</div>
-      </div>
-    </a>
-    <div class="search-bar">
-      <input type="text" id="search-input" placeholder="Търсете продукт — дюбели, фиксатори..." oninput="handleSearch(this.value)">
-      <button onclick="handleSearch(document.getElementById('search-input').value)">🔍</button>
+    <div class="header-phone">
+      <a href="tel:0887778992" id="hdr-phone">0887 77 89 92</a>
+      <span>08:00–17:00</span>
     </div>
-    <div class="header-right">
-      <div class="header-phone">
-        <a href="tel:0887778992" id="hdr-phone">0887 77 89 92</a>
-        <span>08:00–17:00</span>
-      </div>
-      <a href="/cart.html" class="cart-btn">
-        🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span>
+    <a href="/cart.html" class="cart-btn">
+      🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span>
+    </a>
+  </div>
+  <div class="logo-band">
+    <div class="logo-band-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon" id="site-logo">GP</div>
+        <div>
+          <div class="logo-name">Геопласт</div>
+          <div class="logo-sub">Крепежни Елементи</div>
+        </div>
       </a>
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Търсете продукт — дюбели, фиксатори..." oninput="handleSearch(this.value)">
+        <button onclick="handleSearch(document.getElementById('search-input').value)">🔍</button>
+      </div>
     </div>
   </div>
 </header>
