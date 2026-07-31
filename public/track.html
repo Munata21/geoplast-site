@@ -44,7 +44,7 @@
 
 <div class="top-bar">
   <div class="top-bar-inner">
-    <div class="top-bar-marquee"><span>🚚 Проследете вашата пратка | Speedy & Econt | 📞 052 76 14 46</span></div>
+    <div class="top-bar-marquee"><span>🚚 Проследете вашата пратка | Интерлогистик | 📞 0887 77 89 92</span></div>
   </div>
 </div>
 
@@ -80,7 +80,7 @@
 <div class="track-page">
 
   <div class="track-box">
-    <p style="font-size:14px;color:var(--gray-txt);margin-bottom:16px">Въведете <strong>номер на поръчка</strong> (напр. GP-12345678) или <strong>номер на товарителница</strong> от Speedy:</p>
+    <p style="font-size:14px;color:var(--gray-txt);margin-bottom:16px">Въведете <strong>номер на поръчка</strong> (напр. GP-12345678) или <strong>номер на товарителница</strong> от Интерлогистик:</p>
     <div class="track-input-row">
       <input type="text" id="track-input" placeholder="GP-12345678 или товарителница..." onkeydown="if(event.key==='Enter')trackOrder()">
       <button onclick="trackOrder()">🔍 Провери</button>
@@ -91,7 +91,7 @@
 
   <div class="info-box">
     <h3>📞 Нужна е помощ?</h3>
-    <p>Свържете се с нас на <strong style="color:var(--orange)">052 76 14 46</strong> или <strong style="color:var(--orange)">0887 77 89 92</strong><br>Работно време: понеделник – петък, 08:00 – 17:30</p>
+    <p>Свържете се с нас на <strong style="color:var(--orange)">0887 77 89 92</strong><br>Работно време: понеделник – петък, 08:00 – 17:00</p>
   </div>
 
 </div>
@@ -163,7 +163,7 @@ async function trackOrder() {
         <div class="track-detail">
           <div class="track-detail-item"><div class="label">Номер на поръчка</div><div class="value">${esc(o.order_number)}</div></div>
           <div class="track-detail-item"><div class="label">Дата</div><div class="value">${new Date(o.created_at).toLocaleDateString('bg-BG')}</div></div>
-          <div class="track-detail-item"><div class="label">Куриер</div><div class="value">${o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt'}</div></div>
+          <div class="track-detail-item"><div class="label">Куриер</div><div class="value">${o.courier ? '🚚 Интерлогистик' : '🚚 Интерлогистик'}</div></div>
           <div class="track-detail-item"><div class="label">Товарителница</div><div class="value">${o.tracking_number || '—'}</div></div>
           <div class="track-detail-item"><div class="label">Сума</div><div class="value" style="color:var(--orange)">${parseFloat(o.total).toFixed(2)} €</div></div>
           <div class="track-detail-item"><div class="label">Плащане</div><div class="value">${o.payment_method === 'cod' ? '💵 Наложен платеж' : '🏦 Банков превод'}</div></div>
@@ -171,27 +171,9 @@ async function trackOrder() {
         <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Статус на поръчката:</h3>
         <ul class="track-timeline">${timeline}</ul>
         ${o.tracking_number ? `<div style="margin-top:16px;padding:12px 16px;background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;font-size:13px;color:#155724">
-          🚚 Товарителница: <strong>${o.tracking_number}</strong> — можете да следите директно на сайта на ${o.courier === 'speedy' ? 'Speedy' : 'Econt'}
+          🚚 Товарителница: <strong>${o.tracking_number}</strong> — можете да проследите пратката чрез Интерлогистик
         </div>` : ''}`;
 
-    } else if (data.source === 'speedy' && data.parcel) {
-      const p = data.parcel;
-      box.innerHTML = `
-        <div class="status-badge status-shipped">⚡ Speedy пратка</div>
-        <div class="track-detail">
-          <div class="track-detail-item"><div class="label">Товарителница</div><div class="value">${esc(p.id || num)}</div></div>
-          <div class="track-detail-item"><div class="label">Статус</div><div class="value">${esc(p.operations?.[0]?.description || 'В движение')}</div></div>
-        </div>
-        <ul class="track-timeline">
-          ${(p.operations || []).slice(0, 6).map(op => `
-            <li>
-              <div class="tl-dot done">⚡</div>
-              <div class="tl-content">
-                <strong>${esc(op.description || '')}</strong>
-                <span>${op.dateTime ? new Date(op.dateTime).toLocaleString('bg-BG') : ''} ${op.place ? '· ' + esc(op.place) : ''}</span>
-              </div>
-            </li>`).join('')}
-        </ul>`;
     }
   } catch (e) {
     box.innerHTML = `<div class="not-found"><p>Грешка при проверка: ${e.message}</p></div>`;

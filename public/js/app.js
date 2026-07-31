@@ -57,17 +57,19 @@ function productCard(p) {
   const badge = p.old_price ? `<div class="product-badge">-${Math.round((1 - p.price/p.old_price)*100)}%</div>` : '';
   const oldP  = p.old_price ? `<span class="price-old">${p.old_price.toFixed(2)} €</span>` : '';
   const imgEl = p.image
-    ? `<img src="${p.image}" alt="${esc(p.name)}" loading="lazy">`
+    ? `<img src="${p.image}" alt="${esc(p.name)}" loading="lazy" onclick="openImgModal('${esc(p.image)}','${esc(p.name)}')" style="cursor:zoom-in">`
     : getCatEmoji(p.category);
   const inCart = Cart.get().some(i => i.id === p.id);
   return `
     <div class="product-card" data-id="${p.id}">
       ${badge}
+      <div class="delivery-badge">🚚 Безплатна доставка</div>
       <div class="product-img">${imgEl}</div>
       <div class="product-body">
         <div class="product-brand">Геопласт</div>
         <div class="product-name">${esc(p.name)}</div>
         <div class="product-code">${p.code ? `Код: ${esc(p.code)}` : ''}</div>
+        <div class="product-unit-note">Цена за бр. · Изпращаме на кашони</div>
         <div class="product-price">
           <span class="price-new">${p.price.toFixed(2)} €</span>
           ${oldP}
@@ -78,6 +80,35 @@ function productCard(p) {
         </button>
       </div>
     </div>`;
+}
+
+// ── Image lightbox ────────────────────────────────────────────────────────────
+function openImgModal(src, name) {
+  let m = document.getElementById('img-modal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'img-modal';
+    m.className = 'img-modal';
+    m.innerHTML = '<div class="img-modal-box"><button class="img-modal-close" onclick="closeImgModal()">✕</button><img id="img-modal-img" src="" alt=""><div id="img-modal-name"></div></div>';
+    m.addEventListener('click', e => { if (e.target === m) closeImgModal(); });
+    document.body.appendChild(m);
+  }
+  document.getElementById('img-modal-img').src = src;
+  document.getElementById('img-modal-name').textContent = name;
+  m.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImgModal() {
+  const m = document.getElementById('img-modal');
+  if (m) m.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ── Scroll to products ────────────────────────────────────────────────────────
+function scrollToProducts() {
+  const sec = document.getElementById('products-section');
+  if (sec) setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
 
 function getCatEmoji(cat) {

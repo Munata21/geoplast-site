@@ -260,7 +260,7 @@ function renderOrders(orders) {
     const d = new Date(o.created_at);
     const dStr = d.toLocaleDateString('bg-BG', { day:'2-digit', month:'short', year:'numeric' });
     const tStr = d.toLocaleTimeString('bg-BG', { hour:'2-digit', minute:'2-digit' });
-    const courier = o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt';
+    const courier = '🚚 Интерлогистик';
     const summary = (o.items_summary||'').slice(0, 50) + ((o.items_summary||'').length > 50 ? '…' : '');
     return `<tr>
       <td><strong style="color:#ff952b;font-size:13px">${esc(o.order_number)}</strong></td>
@@ -291,7 +291,7 @@ async function openOrder(id) {
     <div class="detail-item"><div class="dl">Имейл</div><div class="dv">${o.customer_email ? `<a href="mailto:${esc(o.customer_email)}" style="color:var(--blue)">${esc(o.customer_email)}</a>` : '—'}</div></div>
     <div class="detail-item"><div class="dl">Град</div><div class="dv">${esc(o.customer_city)}</div></div>
     <div class="detail-item" style="grid-column:1/-1"><div class="dl">Адрес</div><div class="dv">${esc(o.customer_address)}</div></div>
-    <div class="detail-item"><div class="dl">Куриер</div><div class="dv">${o.courier === 'speedy' ? '⚡ Speedy' : '📦 Econt'}</div></div>
+    <div class="detail-item"><div class="dl">Куриер</div><div class="dv">🚚 Интерлогистик</div></div>
     <div class="detail-item"><div class="dl">Товарителница</div><div class="dv">${o.tracking_number || '—'}</div></div>
     <div class="detail-item"><div class="dl">Плащане</div><div class="dv">${o.payment_method === 'cod' ? '💵 Наложен платеж' : '🏦 Банков превод'}</div></div>
     <div class="detail-item"><div class="dl">Дата</div><div class="dv">${new Date(o.created_at).toLocaleString('bg-BG')}</div></div>

@@ -94,13 +94,13 @@
     <div class="sidebar-box">
       <div class="sidebar-title">☰ Категории</div>
       <ul class="cat-list">
-        <li class="cat-item"><a href="#" onclick="filterByCategory('all',this);return false" class="active">📦 Всички продукти <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-izolacia',this);return false">🔩 Дюбели за изолация <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-kabelni',this);return false">🔗 Дюбели за кабелни връзки <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('fiksatori-armatura',this);return false">🔧 Фиксатори за арматура <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('ogranicheteli',this);return false">🧱 Ограничители за керамика <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('klin-fugi',this);return false">📐 Клин за фуги <span class="arrow">›</span></a></li>
-        <li class="cat-item"><a href="#" onclick="filterByCategory('samoniveliraschi',this);return false">📏 Самонивелиращи системи <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('all',this);return false" class="active"><span class="cat-thumb cat-thumb-all">📦</span>Всички продукти <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-izolacia',this);return false"><img class="cat-thumb" src="/images/products/wp_1158.png" alt="">Дюбели за изолация <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('dubeli-kabelni',this);return false"><img class="cat-thumb" src="/images/products/wp_865.jpg" alt="">Дюбели за кабелни връзки <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('fiksatori-armatura',this);return false"><img class="cat-thumb" src="/images/products/wp_870.jpg" alt="">Фиксатори за арматура <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('ogranicheteli',this);return false"><img class="cat-thumb" src="/images/products/wp_1769.png" alt="">Ограничители за керамика <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('klin-fugi',this);return false"><img class="cat-thumb" src="/images/products/wp_1162.png" alt="">Клин за фуги <span class="arrow">›</span></a></li>
+        <li class="cat-item"><a href="#" onclick="filterByCategory('samoniveliraschi',this);return false"><img class="cat-thumb" src="/images/products/wp_1751.jpg" alt="">Самонивелиращи системи <span class="arrow">›</span></a></li>
       </ul>
     </div>
 
@@ -143,12 +143,30 @@
       <div class="section-title">Продуктови категории</div>
     </div>
     <div class="cat-grid fade-in">
-      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-izolacia',this);return false"><div class="cat-card-icon">🔩</div><div class="cat-card-name">Дюбели за изолация</div></a>
-      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-kabelni',this);return false"><div class="cat-card-icon">🔗</div><div class="cat-card-name">Дюбели за кабелни връзки</div></a>
-      <a href="#" class="cat-card" onclick="filterByCategory('fiksatori-armatura',this);return false"><div class="cat-card-icon">🔧</div><div class="cat-card-name">Фиксатори за арматура</div></a>
-      <a href="#" class="cat-card" onclick="filterByCategory('ogranicheteli',this);return false"><div class="cat-card-icon">🧱</div><div class="cat-card-name">Ограничители за керамика</div></a>
-      <a href="#" class="cat-card" onclick="filterByCategory('klin-fugi',this);return false"><div class="cat-card-icon">📐</div><div class="cat-card-name">Клин за фуги</div></a>
-      <a href="#" class="cat-card" onclick="filterByCategory('samoniveliraschi',this);return false"><div class="cat-card-icon">📏</div><div class="cat-card-name">Самонивелиращи системи</div></a>
+      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-izolacia',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_1158.png" alt="Дюбели за изолация" loading="lazy"></div>
+        <div class="cat-card-name">Дюбели за изолация</div>
+      </a>
+      <a href="#" class="cat-card" onclick="filterByCategory('dubeli-kabelni',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_865.jpg" alt="Дюбели за кабелни връзки" loading="lazy"></div>
+        <div class="cat-card-name">Дюбели за кабелни връзки</div>
+      </a>
+      <a href="#" class="cat-card" onclick="filterByCategory('fiksatori-armatura',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_870.jpg" alt="Фиксатори за арматура" loading="lazy"></div>
+        <div class="cat-card-name">Фиксатори за арматура</div>
+      </a>
+      <a href="#" class="cat-card" onclick="filterByCategory('ogranicheteli',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_1769.png" alt="Ограничители за керамика" loading="lazy"></div>
+        <div class="cat-card-name">Ограничители за керамика</div>
+      </a>
+      <a href="#" class="cat-card" onclick="filterByCategory('klin-fugi',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_1162.png" alt="Клин за фуги" loading="lazy"></div>
+        <div class="cat-card-name">Клин за фуги</div>
+      </a>
+      <a href="#" class="cat-card" onclick="filterByCategory('samoniveliraschi',this);scrollToProducts();return false">
+        <div class="cat-card-img"><img src="/images/products/wp_1751.jpg" alt="Самонивелиращи системи" loading="lazy"></div>
+        <div class="cat-card-name">Самонивелиращи системи</div>
+      </a>
     </div>
 
 
