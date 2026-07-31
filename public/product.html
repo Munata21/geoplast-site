@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Продукт — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.product-page { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+.breadcrumb { font-size: 13px; color: var(--gray-txt); margin-bottom: 20px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.breadcrumb a { color: var(--orange); }
+.breadcrumb span { color: #ccc; }
+.product-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.product-gallery { position: relative; }
+.product-gallery .main-img { width: 100%; aspect-ratio: 1; border-radius: 10px; border: 1px solid #f0f0f0; background: #f8f8f8; display: flex; align-items: center; justify-content: center; font-size: 80px; overflow: hidden; cursor: zoom-in; }
+.product-gallery .main-img img { width: 100%; height: 100%; object-fit: contain; padding: 16px; }
+.product-badge-lg { position: absolute; top: 12px; left: 12px; background: var(--red); color: #fff; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 6px; }
+.product-info { display: flex; flex-direction: column; gap: 14px; }
+.product-brand-tag { font-size: 12px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; }
+.product-title { font-size: 24px; font-weight: 900; color: var(--navy); line-height: 1.2; }
+.product-code-tag { font-size: 12px; color: #bbb; }
+.price-block { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.price-main { font-size: 32px; font-weight: 900; color: var(--orange); }
+.price-old-lg { font-size: 18px; color: #bbb; text-decoration: line-through; }
+.price-lv-lg { font-size: 14px; color: var(--gray-txt); }
+.delivery-info { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #166534; display: flex; gap: 8px; align-items: center; }
+.unit-note { font-size: 12px; color: var(--gray-txt); background: #f5f5f5; padding: 4px 10px; border-radius: 5px; display: inline-block; }
+.qty-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.qty-label { font-size: 13px; font-weight: 600; color: var(--navy); }
+.qty-ctrl-lg { display: flex; align-items: center; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; }
+.qty-ctrl-lg button { background: #f5f5f5; border: none; width: 40px; height: 44px; font-size: 20px; font-weight: 700; color: var(--navy); transition: background .15s; }
+.qty-ctrl-lg button:hover { background: var(--orange); color: #fff; }
+.qty-ctrl-lg input { width: 56px; height: 44px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 16px; font-weight: 700; outline: none; }
+.btn-add-lg { flex: 1; background: var(--orange); color: #fff; border: none; border-radius: 8px; padding: 14px 24px; font-size: 16px; font-weight: 700; transition: background .2s; min-width: 180px; }
+.btn-add-lg:hover { background: var(--orange-dark); }
+.btn-add-lg.in-cart { background: #16a34a; }
+.product-desc { font-size: 14px; color: #444; line-height: 1.7; border-top: 1px solid #f0f0f0; padding-top: 14px; }
+.contact-cta { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 13px; text-align: center; }
+.contact-cta a { color: var(--orange); font-weight: 700; }
+@media (max-width: 700px) {
+  .product-layout { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span id="announcement-text">🚚 Безплатна доставка | ✅ Сертифицирани продукти | 🏭 Директно от производителя</span></div>
+    <div class="top-bar-contacts"><a href="tel:0887778992">0887 77 89 92</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-phone">
+      <a href="tel:0887778992" id="hdr-phone">0887 77 89 92</a>
+      <span>08:00–17:00</span>
+    </div>
+    <a href="/cart.html" class="cart-btn">
+      🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span>
+    </a>
+  </div>
+  <div class="logo-band">
+    <div class="logo-band-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon" id="site-logo">GP</div>
+        <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+      </a>
+      <div class="search-bar">
+        <input type="text" placeholder="Търсете продукт..." onkeydown="if(event.key==='Enter')window.location='/?search='+encodeURIComponent(this.value)">
+        <button onclick="window.location='/?search='+encodeURIComponent(document.querySelector('.search-bar input').value)">🔍</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/#products-section">Магазин</a>
+      <a href="/individual-order.html">Индивидуална поръчка</a>
+      <a href="/contact.html">Контакти</a>
+    </div>
+  </div>
+</nav>
+
+<div class="product-page">
+  <div class="breadcrumb">
+    <a href="/">Начало</a>
+    <span>›</span>
+    <a href="/#products-section">Магазин</a>
+    <span>›</span>
+    <span id="breadcrumb-name">Зареждане…</span>
+  </div>
+
+  <div id="product-content">
+    <div class="loading"><div class="spinner"></div><br>Зареждане…</div>
+  </div>
+</div>
+
+<footer style="margin-top:48px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД</span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+let currentQty = 1;
+
+async function loadProduct() {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  if (!id) { document.getElementById('product-content').innerHTML = '<div class="loading">Продуктът не е намерен.</div>'; return; }
+
+  try {
+    const p = await (await fetch(`/api/products/${id}`)).json();
+    if (!p || !p.id) throw new Error('not found');
+
+    document.title = `${p.name} — Геопласт`;
+    document.getElementById('page-title').textContent = `${p.name} — Геопласт`;
+    document.getElementById('breadcrumb-name').textContent = p.name;
+
+    const badge = p.old_price ? `<div class="product-badge-lg">-${Math.round((1-p.price/p.old_price)*100)}%</div>` : '';
+    const imgEl = p.image
+      ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" onclick="openImgModal('${esc(p.image)}','${esc(p.name)}')">`
+      : `<span style="font-size:80px">${getCatEmoji(p.category)}</span>`;
+    const oldP = p.old_price ? `<span class="price-old-lg">${p.old_price.toFixed(2)} €</span>` : '';
+    const inCart = Cart.get().some(i => i.id === p.id);
+
+    document.getElementById('product-content').innerHTML = `
+      <div class="product-layout">
+        <div class="product-gallery">
+          <div class="main-img">${imgEl}</div>
+          ${badge}
+        </div>
+        <div class="product-info">
+          <div class="product-brand-tag">Геопласт</div>
+          <div class="product-title">${esc(p.name)}</div>
+          ${p.code ? `<div class="product-code-tag">Артикул: ${esc(p.code)}</div>` : ''}
+          <div class="price-block">
+            <span class="price-main">${p.price.toFixed(2)} €</span>
+            ${oldP}
+            <span class="price-lv-lg">(${(p.price*1.956).toFixed(2)} лв.)</span>
+          </div>
+          <div class="unit-note">📦 Цена за брой · Изпращаме на кашони</div>
+          <div class="delivery-info">🚚 Безплатна доставка до адрес в цялата страна</div>
+          <div class="qty-row">
+            <span class="qty-label">Количество:</span>
+            <div class="qty-ctrl-lg">
+              <button onclick="changeQty(-1)">−</button>
+              <input type="number" id="qty-input" value="1" min="1" onchange="currentQty=Math.max(1,parseInt(this.value)||1);this.value=currentQty">
+              <button onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+          <button class="btn-add-lg ${inCart ? 'in-cart' : ''}" id="add-btn" onclick="addProduct(${p.id})">
+            ${inCart ? '✅ В количката' : '🛒 Добави в количката'}
+          </button>
+          <div class="contact-cta">
+            Нужно голямо количество? <a href="/individual-order.html">Индивидуална поръчка →</a>
+          </div>
+        </div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('product-content').innerHTML = '<div class="loading">Продуктът не е намерен. <a href="/">← Назад</a></div>';
+  }
+}
+
+function changeQty(delta) {
+  const inp = document.getElementById('qty-input');
+  currentQty = Math.max(1, (parseInt(inp.value) || 1) + delta);
+  inp.value = currentQty;
+}
+
+async function addProduct(id) {
+  try {
+    const res = await fetch(`/api/products/${id}`);
+    const p = await res.json();
+    // Add qty times
+    for (let i = 0; i < currentQty; i++) Cart.add(p);
+    const btn = document.getElementById('add-btn');
+    btn.className = 'btn-add-lg in-cart';
+    btn.textContent = '✅ В количката';
+  } catch(e) {
+    showToast('Грешка при добавяне', 'error');
+  }
+}
+
+loadSettings();
+loadProduct();
+</script>
+</body>
+</html>

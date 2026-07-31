@@ -57,8 +57,8 @@ function productCard(p) {
   const badge = p.old_price ? `<div class="product-badge">-${Math.round((1 - p.price/p.old_price)*100)}%</div>` : '';
   const oldP  = p.old_price ? `<span class="price-old">${p.old_price.toFixed(2)} €</span>` : '';
   const imgEl = p.image
-    ? `<img src="${p.image}" alt="${esc(p.name)}" loading="lazy" onclick="openImgModal('${esc(p.image)}','${esc(p.name)}')" style="cursor:zoom-in">`
-    : getCatEmoji(p.category);
+    ? `<img src="${p.image}" alt="${esc(p.name)}" loading="lazy" style="cursor:pointer" onclick="location.href='/product.html?id=${p.id}'">`
+    : `<span onclick="location.href='/product.html?id=${p.id}'" style="cursor:pointer;font-size:52px">${getCatEmoji(p.category)}</span>`;
   const inCart = Cart.get().some(i => i.id === p.id);
   return `
     <div class="product-card" data-id="${p.id}">
@@ -67,7 +67,7 @@ function productCard(p) {
       <div class="product-img">${imgEl}</div>
       <div class="product-body">
         <div class="product-brand">Геопласт</div>
-        <div class="product-name">${esc(p.name)}</div>
+        <a href="/product.html?id=${p.id}" class="product-name" style="display:block;color:inherit">${esc(p.name)}</a>
         <div class="product-code">${p.code ? `Код: ${esc(p.code)}` : ''}</div>
         <div class="product-unit-note">Цена за бр. · Изпращаме на кашони</div>
         <div class="product-price">
