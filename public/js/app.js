@@ -163,6 +163,11 @@ async function loadSettings() {
     if (logoEl && s.logo) {
       logoEl.innerHTML = `<img src="${s.logo}" alt="Геопласт лого">`;
     }
+    if (s.logo) {
+      document.querySelectorAll('.footer-logo-icon').forEach(el => {
+        el.innerHTML = `<img src="${s.logo}" alt="Геопласт лого" class="footer-logo-img">`;
+      });
+    }
     const ann = document.getElementById('announcement-text');
     if (ann && s.announcement) ann.textContent = s.announcement;
     const p1 = document.getElementById('hdr-phone');
