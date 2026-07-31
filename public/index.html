@@ -87,6 +87,64 @@
   </div>
 </div>
 
+<!-- HERO BANNER -->
+<div class="hero-banner">
+  <div class="hero-slides">
+
+    <div class="hero-slide active">
+      <div class="hero-slide-inner">
+        <div class="hero-text">
+          <div class="hero-tag">Директно от производителя · Варна</div>
+          <h1>Крепежни елементи<br>за <span class="hero-accent">стабилно строителство</span></h1>
+          <p>Дюбели, фиксатори и клин за фуги — сертифицирано качество, безплатна доставка до цялата страна.</p>
+          <a href="#products-section" class="hero-cta" onclick="scrollToProducts()">Разгледай продуктите →</a>
+        </div>
+        <div class="hero-img-wrap">
+          <img src="/images/products/wp_1158.png" alt="Дюбели за изолация">
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-slide">
+      <div class="hero-slide-inner">
+        <div class="hero-text">
+          <div class="hero-tag">Прецизно производство · 10 машини</div>
+          <h1>Фиксатори<br>за <span class="hero-accent">армиран бетон</span></h1>
+          <p>Колонни фиксатори за арматура с универсално приложение. Гарантирана надежност и екологичност.</p>
+          <a href="#products-section" class="hero-cta" onclick="filterByCategory('fiksatori-armatura',null);scrollToProducts()">Към фиксаторите →</a>
+        </div>
+        <div class="hero-img-wrap">
+          <img src="/images/products/wp_870.jpg" alt="Фиксатори за арматура">
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-slide">
+      <div class="hero-slide-inner">
+        <div class="hero-text">
+          <div class="hero-tag">Нова продуктова линия · 2022</div>
+          <h1>Самонивелиращи<br><span class="hero-accent">системи за фуги</span></h1>
+          <p>Системи от клин и изравнител за перфектно наредени плочки. Точност и бързина на монтажа.</p>
+          <a href="#products-section" class="hero-cta" onclick="filterByCategory('samoniveliraschi',null);scrollToProducts()">Виж системите →</a>
+        </div>
+        <div class="hero-img-wrap">
+          <img src="/images/products/wp_1770.png" alt="Самонивелиращи системи">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="hero-prev" onclick="heroNav(-1)" aria-label="Предишен">&#8249;</button>
+  <button class="hero-next" onclick="heroNav(1)"  aria-label="Следващ">&#8250;</button>
+
+  <div class="hero-dots">
+    <button class="hero-dot active" onclick="heroGo(0)"></button>
+    <button class="hero-dot" onclick="heroGo(1)"></button>
+    <button class="hero-dot" onclick="heroGo(2)"></button>
+  </div>
+</div>
+
 <!-- MAIN -->
 <div class="main-wrapper">
 
@@ -127,17 +185,6 @@
 
   <!-- CONTENT -->
   <main>
-
-    <!-- HERO -->
-    <div class="hero fade-in">
-      <div>
-        <div class="hero-badge">Директно от производителя</div>
-        <h1>Крепежни елементи за <em>стабилно строителство</em></h1>
-        <p>Дюбели за изолация, фиксатори за арматура и клин за фуги — с доказано качество от Варна.</p>
-        <a href="#products-section" class="hero-btn">Разгледай продуктите →</a>
-      </div>
-      <div class="hero-deco">🔩</div>
-    </div>
 
     <!-- CATEGORY CARDS -->
     <div class="section-header fade-in">
@@ -306,5 +353,27 @@
 
 
 <script src="/js/app.js"></script>
+<script>
+// ── Hero slider ──────────────────────────────────────────────────────────────
+(function() {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots   = document.querySelectorAll('.hero-dot');
+  let cur = 0, timer;
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+  }
+
+  window.heroNav = function(d) { clearInterval(timer); goTo(cur + d); startAuto(); };
+  window.heroGo  = function(n) { clearInterval(timer); goTo(n); startAuto(); };
+
+  function startAuto() { timer = setInterval(() => goTo(cur + 1), 5000); }
+  startAuto();
+})();
+</script>
 </body>
 </html>
