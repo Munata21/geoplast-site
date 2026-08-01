@@ -21,6 +21,8 @@
 .clients-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .client-tag { background: #f0f4ff; border: 1px solid #d0d9ff; border-radius: 6px; padding: 5px 12px; font-size: 12.5px; color: var(--navy); font-weight: 600; }
 .cert-badge { display: inline-flex; align-items: center; gap: 8px; background: #fff8f0; border: 1.5px solid var(--orange); border-radius: 8px; padding: 10px 16px; margin-top: 10px; font-size: 13px; color: var(--navy); font-weight: 700; }
+.cert-download-btn { display: flex; align-items: center; gap: 10px; background: #f8faff; border: 1.5px solid #d0d9ff; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--navy); text-decoration: none; transition: all .15s; }
+.cert-download-btn:hover { background: #fff8f0; border-color: var(--orange); color: var(--navy); }
 @media (max-width: 600px) { .content-box { padding: 24px 18px; } }
 </style>
 </head>
@@ -119,9 +121,19 @@
     </div>
 
     <h2>Сертификати и качество</h2>
-    <p>ГЕОПЛАСТ ЕООД и ГЕОПЛАСТ – В ЕООД притежават сертификат за качество, отговарящ на изискванията на <strong>БДС</strong> и в съответствие с наредбата за съществени изисквания и оценяване на съответствията на строителните продукти.</p>
-    <p>Сертификатите са издадени от акредитиран Изпитателен център по строителство (ИЦС), лаборатория „Строителна химия и изолации".</p>
-    <div class="cert-badge">🏆 Сертифицирано производство · БДС · ИЦС</div>
+    <p>ГЕОПЛАСТ ЕООД и ГЕОПЛАСТ – В ЕООД притежават протоколи от изпитване, издадени от акредитиран <strong>Изпитвателен Център по Строителство (ИЦС) при НИСИ ЕООД</strong>, потвърждаващи съответствие с Европейски стандарт <strong>EAD 330196-01-0604</strong>.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin:18px 0">
+      <a href="/files/sertifikat-beton.pdf" target="_blank" class="cert-download-btn">
+        📄 Протокол от изпитване № 282-1-207 — Дюбели за <strong>бетон</strong> (12.05.2022)
+      </a>
+      <a href="/files/sertifikat-tuhla.pdf" target="_blank" class="cert-download-btn">
+        📄 Протокол от изпитване № 283-1-208 — Дюбели за <strong>тухла</strong> (12.05.2022)
+      </a>
+      <a href="/files/sertifikat-vata.pdf" target="_blank" class="cert-download-btn">
+        📄 Протокол от изпитване № 284-1-209 — Дюбели за <strong>вата</strong> (12.05.2022)
+      </a>
+    </div>
+    <div class="cert-badge">🏆 Сертифицирано производство · ИЦС при НИСИ ЕООД · EAD 330196</div>
 
     <div style="margin-top:32px;padding:16px 20px;background:#f8f8f8;border-radius:8px;font-size:13px;color:var(--gray-txt)">
       За въпроси и партньорство: <a href="mailto:geoplast.v.eood@gmail.com" style="color:var(--orange)">geoplast.v.eood@gmail.com</a> · <a href="tel:0887778992" style="color:var(--orange)">0887 77 89 92</a>
