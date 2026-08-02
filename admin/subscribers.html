@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Абонати — Геопласт Админ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e}
+a{text-decoration:none;color:inherit}
+:root{--orange:#ff952b;--navy:#1a1a2e;--green:#38a169;--red:#e53e3e;--blue:#3182ce;--white:#fff;--border:#e2e8f0;--gray:#718096}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#2d3561)}
+.login-box{background:#fff;border-radius:14px;padding:40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.login-box .logo-icon{width:64px;height:64px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;margin:0 auto 16px}
+.login-box h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--gray);margin-bottom:24px}
+.login-box input{width:100%;border:2px solid var(--border);border-radius:8px;padding:12px 14px;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px}
+.login-box input:focus{border-color:var(--orange)}
+.login-box button{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}
+.login-error{color:var(--red);font-size:13px;margin-top:8px}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:#fff}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.sidebar-logo .badge{font-size:10px;background:var(--orange);color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px;display:inline-block}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 20px 6px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--orange)}
+.nav-link .icon{font-size:16px;width:20px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px}
+.sidebar-footer a:hover{color:#fff}
+.main{flex:1;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:18px;font-weight:800;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.visit-btn{background:var(--orange);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.export-btn{background:var(--green);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.content{padding:24px 28px}
+.stat-bar{display:flex;gap:16px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:18px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid var(--orange)}
+.stat .val{font-size:28px;font-weight:900;color:var(--navy)}
+.stat .lbl{font-size:12px;color:var(--gray);margin-top:2px}
+.table-box{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:#f8f9fa;padding:10px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid #f5f5f5}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.empty{text-align:center;color:var(--gray);padding:40px;font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="logo-icon">GP</div>
+    <h2>Геопласт Админ</h2>
+    <p>Въведете паролата за достъп</p>
+    <input type="password" id="admin-pass" placeholder="Парола...">
+    <button onclick="doLogin()">Влез →</button>
+    <div class="login-error" id="login-err"></div>
+  </div>
+</div>
+
+<div class="admin-wrap" id="admin-panel" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Геопласт</div>
+      <div class="sub">Администрация</div>
+      <div class="badge">🔧 Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Главно</div>
+      <a href="/admin/" class="nav-link"><span class="icon">📊</span> Табло</a>
+      <div class="nav-section">Магазин</div>
+      <a href="/admin/orders.html" class="nav-link"><span class="icon">📦</span> Поръчки</a>
+      <a href="/admin/products.html" class="nav-link"><span class="icon">🔩</span> Продукти</a>
+      <div class="nav-section">Настройки</div>
+      <a href="/admin/settings.html" class="nav-link"><span class="icon">⚙️</span> Настройки</a>
+      <a href="/admin/subscribers.html" class="nav-link active"><span class="icon">✉️</span> Абонати</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank">🌐 Виж магазина</a>
+      <a href="#" onclick="doLogout()" style="margin-top:10px">🚪 Изход</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>✉️ Абонати</h1>
+      <div class="topbar-right">
+        <button class="export-btn" onclick="exportCSV()">📥 Изтегли CSV</button>
+        <button class="visit-btn" onclick="window.open('/', '_blank')">🌐 Виж магазина</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stat-bar">
+        <div class="stat">
+          <div class="val" id="total-count">—</div>
+          <div class="lbl">Общо абонати</div>
+        </div>
+      </div>
+      <div class="table-box">
+        <table>
+          <thead><tr><th>#</th><th>Имейл</th><th>Дата на абониране</th></tr></thead>
+          <tbody id="subs-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allSubs = [];
+
+async function doLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pass }) });
+  if (res.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadSubscribers();
+  } else {
+    document.getElementById('login-err').textContent = 'Грешна парола';
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/admin/logout', { method:'POST' });
+  location.reload();
+}
+
+async function checkAuth() {
+  const res = await fetch('/api/admin/check');
+  const data = await res.json();
+  if (data.isAdmin) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadSubscribers();
+  }
+}
+
+async function loadSubscribers() {
+  const res = await fetch('/api/subscribers');
+  allSubs = await res.json();
+  document.getElementById('total-count').textContent = allSubs.length;
+  const tbody = document.getElementById('subs-table');
+  if (!allSubs.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">Няма абонати все още</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allSubs.map((s, i) => `
+    <tr>
+      <td style="color:var(--gray);font-size:12px">${i + 1}</td>
+      <td style="font-weight:600">${esc(s.email)}</td>
+      <td style="color:var(--gray)">${s.created_at ? new Date(s.created_at).toLocaleDateString('bg-BG', {day:'2-digit',month:'long',year:'numeric'}) : '—'}</td>
+    </tr>`).join('');
+}
+
+function exportCSV() {
+  if (!allSubs.length) return alert('Няма абонати за изтегляне');
+  const csv = 'Имейл,Дата\n' + allSubs.map(s => `${s.email},${s.created_at || ''}`).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'abonati-geoplast.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', checkAuth);
+document.getElementById('admin-pass')?.addEventListener('keydown', e => e.key === 'Enter' && doLogin());
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Настройки — Геопласт Админ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e}
+a{text-decoration:none;color:inherit}
+:root{--orange:#ff952b;--navy:#1a1a2e;--green:#38a169;--red:#e53e3e;--blue:#3182ce;--white:#fff;--border:#e2e8f0;--gray:#718096}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#2d3561)}
+.login-box{background:#fff;border-radius:14px;padding:40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.login-box .logo-icon{width:64px;height:64px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;margin:0 auto 16px}
+.login-box h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--gray);margin-bottom:24px}
+.login-box input{width:100%;border:2px solid var(--border);border-radius:8px;padding:12px 14px;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:12px}
+.login-box input:focus{border-color:var(--orange)}
+.login-box button{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}
+.login-error{color:var(--red);font-size:13px;margin-top:8px}
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:#fff}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.sidebar-logo .badge{font-size:10px;background:var(--orange);color:#fff;padding:2px 8px;border-radius:10px;margin-top:6px;display:inline-block}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 20px 6px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--orange)}
+.nav-link .icon{font-size:16px;width:20px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-footer a{font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:8px}
+.sidebar-footer a:hover{color:#fff}
+.main{flex:1;overflow:auto}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:18px;font-weight:800;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.visit-btn{background:var(--orange);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.content{padding:24px 28px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:#fff;border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px}
+.card h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field textarea{width:100%;border:2px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;outline:none;transition:border-color .2s;font-family:inherit}
+.field input:focus,.field textarea:focus{border-color:var(--orange)}
+.field textarea{resize:vertical;min-height:80px}
+.save-btn{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s}
+.save-btn:hover{background:#e07a10}
+.logo-preview{width:120px;height:60px;object-fit:contain;border:2px solid var(--border);border-radius:8px;margin-bottom:10px;display:block;background:#f8f8f8}
+.success-msg{display:none;color:var(--green);font-size:13px;font-weight:600;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="logo-icon">GP</div>
+    <h2>Геопласт Админ</h2>
+    <p>Въведете паролата за достъп</p>
+    <input type="password" id="admin-pass" placeholder="Парола...">
+    <button onclick="doLogin()">Влез →</button>
+    <div class="login-error" id="login-err"></div>
+  </div>
+</div>
+
+<div class="admin-wrap" id="admin-panel" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Геопласт</div>
+      <div class="sub">Администрация</div>
+      <div class="badge">🔧 Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Главно</div>
+      <a href="/admin/" class="nav-link"><span class="icon">📊</span> Табло</a>
+      <div class="nav-section">Магазин</div>
+      <a href="/admin/orders.html" class="nav-link"><span class="icon">📦</span> Поръчки</a>
+      <a href="/admin/products.html" class="nav-link"><span class="icon">🔩</span> Продукти</a>
+      <div class="nav-section">Настройки</div>
+      <a href="/admin/settings.html" class="nav-link active"><span class="icon">⚙️</span> Настройки</a>
+      <a href="/admin/subscribers.html" class="nav-link"><span class="icon">✉️</span> Абонати</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" target="_blank">🌐 Виж магазина</a>
+      <a href="#" onclick="doLogout()" style="margin-top:10px">🚪 Изход</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>⚙️ Настройки на сайта</h1>
+      <div class="topbar-right">
+        <button class="visit-btn" onclick="window.open('/', '_blank')">🌐 Виж магазина</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="settings-grid">
+        <!-- Logo -->
+        <div class="card">
+          <h3>🖼️ Лого</h3>
+          <img id="logo-preview" class="logo-preview" src="/images/geoplast_logo.png" alt="Лого">
+          <div class="field">
+            <label>Качи ново лого</label>
+            <input type="file" id="logo-file" accept="image/*">
+          </div>
+          <button class="save-btn" onclick="uploadLogo()">📤 Качи лого</button>
+          <div class="success-msg" id="logo-ok">✅ Логото е обновено!</div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card">
+          <h3>📞 Контакти</h3>
+          <div class="field"><label>Телефон</label><input type="text" id="s-phone" placeholder="0887 77 89 92"></div>
+          <div class="field"><label>Имейл</label><input type="email" id="s-email" placeholder="geoplast.v.eood@gmail.com"></div>
+          <div class="field"><label>Адрес</label><input type="text" id="s-address" placeholder="Варна, ЗПЗ, България"></div>
+          <button class="save-btn" onclick="saveSettings()">💾 Запази</button>
+          <div class="success-msg" id="contact-ok">✅ Запазено!</div>
+        </div>
+      </div>
+
+      <!-- Announcement -->
+      <div class="card">
+        <h3>📢 Лента с обяви (горната лента)</h3>
+        <div class="field"><label>Текст на обявата</label><input type="text" id="s-announcement" placeholder="🏭 Геопласт ЕООД · Собствено производство от 1997 г. · Сертифицирани продукти"></div>
+        <button class="save-btn" onclick="saveSettings()">💾 Запази</button>
+        <div class="success-msg" id="ann-ok">✅ Запазено!</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+async function doLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pass }) });
+  if (res.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadCurrentSettings();
+  } else {
+    document.getElementById('login-err').textContent = 'Грешна парола';
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/admin/logout', { method:'POST' });
+  location.reload();
+}
+
+async function checkAuth() {
+  const res = await fetch('/api/admin/check');
+  const data = await res.json();
+  if (data.isAdmin) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'flex';
+    loadCurrentSettings();
+  }
+}
+
+async function loadCurrentSettings() {
+  const s = await (await fetch('/api/settings')).json();
+  if (s.phone1) document.getElementById('s-phone').value = s.phone1;
+  if (s.email) document.getElementById('s-email').value = s.email;
+  if (s.address) document.getElementById('s-address').value = s.address;
+  if (s.announcement) document.getElementById('s-announcement').value = s.announcement;
+  if (s.logo) document.getElementById('logo-preview').src = s.logo;
+}
+
+async function saveSettings() {
+  const data = {
+    phone1: document.getElementById('s-phone').value,
+    email: document.getElementById('s-email').value,
+    address: document.getElementById('s-address').value,
+    announcement: document.getElementById('s-announcement').value,
+  };
+  await fetch('/api/settings', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  ['contact-ok','ann-ok'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000); }
+  });
+}
+
+async function uploadLogo() {
+  const file = document.getElementById('logo-file').files[0];
+  if (!file) return alert('Избери файл');
+  const fd = new FormData();
+  fd.append('logo', file);
+  const res = await fetch('/api/settings/logo', { method:'POST', body: fd });
+  if (res.ok) {
+    const d = await res.json();
+    document.getElementById('logo-preview').src = d.logo + '?t=' + Date.now();
+    const ok = document.getElementById('logo-ok');
+    ok.style.display = 'block';
+    setTimeout(() => ok.style.display = 'none', 3000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkAuth);
+document.getElementById('admin-pass')?.addEventListener('keydown', e => e.key === 'Enter' && doLogin());
+</script>
+</body>
+</html>
