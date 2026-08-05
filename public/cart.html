@@ -107,6 +107,7 @@ function renderCart() {
 
   const subtotal = Cart.total();
   const rows = items.map(item => {
+    const ckey = item.cart_key || `${item.id}-0`;
     const imgEl = item.image ? `<img src="${item.image}" alt="">` : (getCatEmoji ? getCatEmoji('') : '📦');
     return `<tr>
       <td>
@@ -121,13 +122,13 @@ function renderCart() {
       <td><strong>${item.price.toFixed(2)} €</strong></td>
       <td>
         <div class="qty-ctrl">
-          <button onclick="changeQty(${item.id}, -1)">−</button>
-          <input type="number" value="${item.qty}" min="1" onchange="Cart.updateQty(${item.id}, this.value); renderCart()">
-          <button onclick="changeQty(${item.id}, 1)">+</button>
+          <button onclick="changeQty('${ckey}', -1)">−</button>
+          <input type="number" value="${item.qty}" min="1" onchange="Cart.updateQty('${ckey}', this.value); renderCart()">
+          <button onclick="changeQty('${ckey}', 1)">+</button>
         </div>
       </td>
       <td><strong style="color:var(--orange)">${(item.price * item.qty).toFixed(2)} €</strong></td>
-      <td><button class="remove-btn" onclick="removeItem(${item.id})" title="Премахни">✕</button></td>
+      <td><button class="remove-btn" onclick="removeItem('${ckey}')" title="Премахни">✕</button></td>
     </tr>`;
   }).join('');
 
@@ -155,14 +156,14 @@ function renderCart() {
     </div>`;
 }
 
-function changeQty(id, delta) {
+function changeQty(cartKey, delta) {
   const items = Cart.get();
-  const item = items.find(i => i.id === id);
+  const item = items.find(i => (i.cart_key || `${i.id}-0`) === cartKey);
   if (item) { item.qty = Math.max(1, item.qty + delta); Cart.save(items); renderCart(); }
 }
 
-function removeItem(id) {
-  Cart.remove(id);
+function removeItem(cartKey) {
+  Cart.remove(cartKey);
   renderCart();
 }
 

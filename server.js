@@ -150,11 +150,13 @@ app.post('/api/settings/logo', requireAdmin, upload.single('logo'), (req, res) =
 // ── PRODUCTS ────────────────────────────────────────────────────────────────
 app.get('/api/products', (req, res) => {
   const { category, search, limit = 100, offset = 0 } = req.query;
-  let q = 'SELECT * FROM products WHERE active = 1';
+  let q = `SELECT p.*,
+    (SELECT COUNT(*) FROM product_variations WHERE product_id = p.id AND active = 1) as var_count
+    FROM products p WHERE p.active = 1`;
   const p = [];
-  if (category && category !== 'all') { q += ' AND category = ?'; p.push(category); }
-  if (search) { q += ' AND (name LIKE ? OR description LIKE ? OR code LIKE ?)'; p.push(`%${search}%`, `%${search}%`, `%${search}%`); }
-  q += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  if (category && category !== 'all') { q += ' AND p.category = ?'; p.push(category); }
+  if (search) { q += ' AND (p.name LIKE ? OR p.description LIKE ? OR p.code LIKE ?)'; p.push(`%${search}%`, `%${search}%`, `%${search}%`); }
+  q += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
   p.push(parseInt(limit), parseInt(offset));
   res.json(db.prepare(q).all(...p));
 });
@@ -162,7 +164,33 @@ app.get('/api/products', (req, res) => {
 app.get('/api/products/:id', (req, res) => {
   const p = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Not found' });
+  p.variations = db.prepare('SELECT * FROM product_variations WHERE product_id = ? AND active = 1 ORDER BY sort_order').all(req.params.id);
+  p.var_count = p.variations.length;
   res.json(p);
+});
+
+// Variations CRUD (admin)
+app.get('/api/products/:id/variations', requireAdmin, (req, res) => {
+  res.json(db.prepare('SELECT * FROM product_variations WHERE product_id = ? ORDER BY sort_order').all(req.params.id));
+});
+
+app.post('/api/products/:id/variations', requireAdmin, (req, res) => {
+  const { name, description, price_modifier, stock, sort_order } = req.body;
+  const r = db.prepare(`INSERT INTO product_variations (product_id, name, description, price_modifier, stock, sort_order)
+    VALUES (?, ?, ?, ?, ?, ?)`).run(req.params.id, name, description || '', parseFloat(price_modifier) || 0, parseInt(stock) || 0, parseInt(sort_order) || 0);
+  res.json({ id: r.lastInsertRowid });
+});
+
+app.put('/api/variations/:id', requireAdmin, (req, res) => {
+  const { name, description, price_modifier, stock, active, sort_order } = req.body;
+  db.prepare(`UPDATE product_variations SET name=?, description=?, price_modifier=?, stock=?, active=?, sort_order=? WHERE id=?`)
+    .run(name, description || '', parseFloat(price_modifier) || 0, parseInt(stock) || 0, active !== undefined ? parseInt(active) : 1, parseInt(sort_order) || 0, req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/variations/:id', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM product_variations WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
 });
 
 app.post('/api/products', requireAdmin, upload.single('image'), (req, res) => {

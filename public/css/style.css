@@ -157,9 +157,13 @@ button { cursor: pointer; font-family: inherit; }
 .price-new { font-size: 20px; font-weight: 900; color: var(--orange); }
 .price-old { font-size: 13px; color: #bbb; text-decoration: line-through; }
 .price-lv { font-size: 11px; color: #999; }
-.btn-buy { width: 100%; background: var(--orange); color: #fff; border: none; padding: 9px; font-size: 13px; font-weight: 700; border-radius: 7px; transition: background .2s; }
+.btn-buy { width: 100%; background: var(--orange); color: #fff; border: none; padding: 9px; font-size: 13px; font-weight: 700; border-radius: 7px; transition: background .2s; cursor: pointer; }
 .btn-buy:hover { background: var(--orange-dark); }
 .btn-buy.in-cart { background: var(--green); }
+.var-picker { margin-bottom: 8px; }
+.var-label { display: block; font-size: 11px; font-weight: 700; color: #555; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
+.var-select { width: 100%; border: 1.5px solid #dde0e8; border-radius: 6px; padding: 7px 8px; font-size: 12px; color: #333; background: #fafbfd; outline: none; cursor: pointer; transition: border-color .2s; }
+.var-select:focus { border-color: var(--orange); }
 
 /* ── Promo banners ── */
 .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }

@@ -6,22 +6,29 @@ const Cart = {
   count() { return this.get().reduce((s, i) => s + i.qty, 0); },
   total() { return this.get().reduce((s, i) => s + i.price * i.qty, 0); },
 
-  add(product) {
+  add(product, variation) {
     const items = this.get();
-    const ex = items.find(i => i.id === product.id);
+    const cartKey = `${product.id}-${variation ? variation.id : 0}`;
+    const ex = items.find(i => i.cart_key === cartKey);
     if (ex) ex.qty += 1;
-    else items.push({ id: product.id, name: product.name, price: product.price, image: product.image, code: product.code, qty: 1 });
+    else {
+      const name = variation ? `${product.name} — ${variation.name}` : product.name;
+      const price = product.price + (variation ? (variation.price_modifier || 0) : 0);
+      items.push({ id: product.id, cart_key: cartKey, variation_id: variation?.id || null,
+        variation_name: variation?.name || null, name, price, image: product.image, code: product.code, qty: 1 });
+    }
     this.save(items);
-    showToast(`✅ "${product.name.slice(0, 40)}..." добавен в количката`, 'success');
+    const label = variation ? `${product.name} (${variation.name})` : product.name;
+    showToast(`✅ "${label.slice(0, 45)}" добавен в количката`, 'success');
   },
 
-  remove(id) {
-    this.save(this.get().filter(i => i.id !== id));
+  remove(cartKey) {
+    this.save(this.get().filter(i => (i.cart_key || `${i.id}-0`) !== cartKey));
   },
 
-  updateQty(id, qty) {
+  updateQty(cartKey, qty) {
     const items = this.get();
-    const item = items.find(i => i.id === id);
+    const item = items.find(i => (i.cart_key || `${i.id}-0`) === cartKey);
     if (item) { item.qty = Math.max(1, parseInt(qty) || 1); this.save(items); }
   },
 
@@ -59,7 +66,15 @@ function productCard(p) {
   const imgEl = p.image
     ? `<img src="${p.image}" alt="${esc(p.name)}" loading="lazy" style="cursor:pointer" onclick="location.href='/product.html?id=${p.id}'">`
     : `<span onclick="location.href='/product.html?id=${p.id}'" style="cursor:pointer;font-size:52px">${getCatEmoji(p.category)}</span>`;
-  const inCart = Cart.get().some(i => i.id === p.id);
+  const hasVars = p.var_count > 0;
+  const varPicker = hasVars ? `
+    <div class="var-picker" id="varpick-${p.id}" style="display:none">
+      <label class="var-label">Размер:</label>
+      <select class="var-select" id="varsel-${p.id}">
+        <option value="">— Изберете размер —</option>
+      </select>
+      <div class="var-qty-note" id="varqty-${p.id}" style="font-size:11px;color:#888;margin-top:3px"></div>
+    </div>` : '';
   return `
     <div class="product-card" data-id="${p.id}">
       ${badge}
@@ -75,8 +90,9 @@ function productCard(p) {
           ${oldP}
           <span class="price-lv">(${(p.price * 1.956).toFixed(2)} лв.)</span>
         </div>
-        <button class="btn-buy ${inCart ? 'in-cart' : ''}" onclick="addToCart(${p.id})" data-pid="${p.id}">
-          ${inCart ? '✅ В количката' : '🛒 Добави'}
+        ${varPicker}
+        <button class="btn-buy" onclick="addToCart(${p.id}, ${hasVars})" data-pid="${p.id}">
+          🛒 Добави
         </button>
       </div>
     </div>`;
@@ -140,16 +156,45 @@ async function loadProducts(params = {}) {
 }
 
 // ── Add to cart ───────────────────────────────────────────────────────────────
-async function addToCart(id) {
+async function addToCart(id, hasVars) {
   try {
     const res = await fetch(`/api/products/${id}`);
     const p = await res.json();
-    Cart.add(p);
-    // Update button state
-    document.querySelectorAll(`[data-pid="${id}"]`).forEach(btn => {
-      btn.className = 'btn-buy in-cart';
-      btn.textContent = '✅ В количката';
-    });
+
+    if (hasVars || p.var_count > 0) {
+      const picker = document.getElementById(`varpick-${id}`);
+      const sel = document.getElementById(`varsel-${id}`);
+
+      // First time: populate the select and show picker
+      if (picker && sel.options.length <= 1) {
+        p.variations.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.textContent = v.name + (v.description ? ` — ${v.description}` : '');
+          opt.dataset.name = v.name;
+          opt.dataset.priceModifier = v.price_modifier || 0;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          const qtyEl = document.getElementById(`varqty-${id}`);
+          const opt = sel.options[sel.selectedIndex];
+          if (qtyEl && opt.value) qtyEl.textContent = opt.text.split(' — ')[1] || '';
+        });
+      }
+      if (picker) picker.style.display = '';
+
+      // Require selection
+      if (!sel || !sel.value) {
+        showToast('Моля, изберете размер', 'error');
+        return;
+      }
+
+      const varId = parseInt(sel.value);
+      const variation = p.variations.find(v => v.id === varId);
+      Cart.add(p, variation);
+    } else {
+      Cart.add(p, null);
+    }
   } catch (e) {
     showToast('Грешка при добавяне', 'error');
   }

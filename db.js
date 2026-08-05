@@ -137,6 +137,19 @@ async function initDB() {
     )
   `);
 
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS product_variations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER REFERENCES products(id),
+      name TEXT NOT NULL,
+      description TEXT,
+      price_modifier REAL DEFAULT 0,
+      stock INTEGER DEFAULT 0,
+      active INTEGER DEFAULT 1,
+      sort_order INTEGER DEFAULT 0
+    )
+  `);
+
   save();
 
   // Default settings
@@ -194,6 +207,64 @@ async function initDB() {
   ];
   for (const [code, img] of imageMap) {
     _db.run('UPDATE products SET image = ? WHERE code = ? AND image IS NULL', [img, code]);
+  }
+
+  // Update product descriptions from old WordPress site scraping
+  const descMap = [
+    ['GP-DB-TER',  'За захващане в бетон на различни видове термоизолации'],
+    ['GP-FA-KOL',  'За захващане на различни видове арматура'],
+  ];
+  for (const [code, desc] of descMap) {
+    _db.run('UPDATE products SET description = ? WHERE code = ? AND (description IS NULL OR description = ?)', [desc, code, '']);
+  }
+
+  // Seed product variations if none exist
+  const varCount = (_db.exec('SELECT COUNT(*) as c FROM product_variations')[0]?.values[0][0]) || 0;
+  if (varCount === 0) {
+    const insVar = (code, variations) => {
+      const row = _db.exec(`SELECT id FROM products WHERE code = '${code}'`)[0];
+      if (!row || !row.values.length) return;
+      const pid = row.values[0][0];
+      variations.forEach(([name, desc, sort]) => {
+        _db.run('INSERT INTO product_variations (product_id, name, description, sort_order) VALUES (?, ?, ?, ?)',
+          [pid, name, desc, sort]);
+      });
+    };
+
+    // Дюбели за Бетон — 6 размера
+    insVar('GP-DB-TER', [
+      ['8×50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1],
+      ['8×70мм',  '1600 бр./кашон (пакети по 100 бр.)', 2],
+      ['8×90мм',  '1200 бр./кашон (пакети по 100 бр.)', 3],
+      ['8×110мм', '1200 бр./кашон (пакети по 100 бр.)', 4],
+      ['8×130мм', '1000 бр./кашон (пакети по 100 бр.)', 5],
+      ['8×150мм', '1000 бр./кашон (пакети по 100 бр.)', 6],
+    ]);
+
+    // Дюбел за кабелни връзки
+    insVar('GP-DKV-PVC', [
+      ['8×40мм', '15 т./кашон (пакети по 100 бр.)', 1],
+    ]);
+
+    // Фиксатор за арматура — колонен
+    insVar('GP-FA-KOL', [
+      ['R15', '1000 бр./кашон (пакети по 100 бр.)', 1],
+      ['R20', '1000 бр./кашон (пакети по 100 бр.)', 2],
+    ]);
+
+    // Ограничители за керамични изделия
+    insVar('GP-OGR-KER', [
+      ['2мм', '200 бр./пакет · 50 пакета/кашон', 1],
+      ['3мм', '150 бр./пакет · 50 пакета/кашон', 2],
+      ['4мм', '100 бр./пакет · 50 пакета/кашон', 3],
+      ['5мм', '100 бр./пакет · 50 пакета/кашон', 4],
+    ]);
+
+    // Клин за фуги
+    insVar('GP-KF-STD', [
+      ['6мм', '100 бр. · 50 пакета/кашон', 1],
+      ['8мм', '50 бр. · 50 пакета/кашон',  2],
+    ]);
   }
 
   save();
