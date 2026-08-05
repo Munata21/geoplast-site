@@ -129,6 +129,14 @@ async function initDB() {
     )
   `);
 
+  _db.run(`
+    CREATE TABLE IF NOT EXISTS inquiries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT, phone TEXT, email TEXT, subject TEXT, message TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
   save();
 
   // Default settings

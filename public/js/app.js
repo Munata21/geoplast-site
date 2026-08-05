@@ -69,7 +69,7 @@ function productCard(p) {
         <div class="product-brand">Геопласт</div>
         <a href="/product.html?id=${p.id}" class="product-name" style="display:block;color:inherit">${esc(p.name)}</a>
         <div class="product-code">${p.code ? `Код: ${esc(p.code)}` : ''}</div>
-        <div class="product-unit-note">Цена за бр. · Изпращаме на кашони</div>
+        <div class="product-unit-note">Цена за кашон · с ДДС</div>
         <div class="product-price">
           <span class="price-new">${p.price.toFixed(2)} €</span>
           ${oldP}

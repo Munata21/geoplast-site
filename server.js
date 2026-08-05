@@ -393,21 +393,45 @@ app.get('/api/track/:number', async (req, res) => {
 });
 
 // ── CONTACT FORM ─────────────────────────────────────────────────────────────
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', async (req, res) => {
   const { name, phone, email, subject, message } = req.body;
   if (!name || !phone || !message) return res.status(400).json({ error: 'Попълнете задължителните полета' });
-  // Store in DB (reuse subscribers table concept — simple log)
   try {
-    db.prepare(`CREATE TABLE IF NOT EXISTS inquiries (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT, phone TEXT, email TEXT, subject TEXT, message TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    )`).run();
     db.prepare('INSERT INTO inquiries (name, phone, email, subject, message) VALUES (?, ?, ?, ?, ?)')
       .run(name, phone, email || '', subject || '', message);
     console.log(`📬 Запитване от ${name} (${phone}): ${subject}`);
+    if (mailer) {
+      const html = `<div style="font-family:Arial,sans-serif;max-width:600px">
+        <h2 style="background:#1a1a2e;color:#fff;padding:16px 20px;border-radius:8px;margin:0 0 20px">📬 Ново запитване за оферта</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="color:#666;padding:6px 0;width:100px">Имена:</td><td style="font-weight:700">${name}</td></tr>
+          <tr><td style="color:#666;padding:6px 0">Телефон:</td><td style="font-weight:700">${phone}</td></tr>
+          ${email ? `<tr><td style="color:#666;padding:6px 0">Имейл:</td><td>${email}</td></tr>` : ''}
+          ${subject ? `<tr><td style="color:#666;padding:6px 0">Тема:</td><td>${subject}</td></tr>` : ''}
+        </table>
+        <div style="background:#f8f9fa;border-radius:8px;padding:16px;margin-top:16px">
+          <div style="font-size:12px;color:#666;margin-bottom:8px">СЪОБЩЕНИЕ:</div>
+          <div style="font-size:15px;line-height:1.6">${message.replace(/\n/g,'<br>')}</div>
+        </div>
+      </div>`;
+      mailer.sendMail({
+        from: `"Геопласт Сайт" <${process.env.SMTP_USER}>`,
+        to: process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com',
+        subject: `📬 Запитване за оферта — ${name} (${phone})`,
+        html
+      }).catch(e => console.error('Contact email error:', e.message));
+    }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/inquiries', requireAdmin, (req, res) => {
+  res.json(db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all());
+});
+
+app.delete('/api/inquiries/:id', requireAdmin, (req, res) => {
+  db.prepare('DELETE FROM inquiries WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
 });
 
 // ── SUBSCRIBERS ──────────────────────────────────────────────────────────────
