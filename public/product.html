@@ -123,12 +123,23 @@ async function loadProduct() {
     document.getElementById('page-title').textContent = `${p.name} — Геопласт`;
     document.getElementById('breadcrumb-name').textContent = p.name;
 
+    let currentProduct = p;
     const badge = p.old_price ? `<div class="product-badge-lg">-${Math.round((1-p.price/p.old_price)*100)}%</div>` : '';
     const imgEl = p.image
       ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" onclick="openImgModal('${esc(p.image)}','${esc(p.name)}')">`
       : `<span style="font-size:80px">${getCatEmoji(p.category)}</span>`;
     const oldP = p.old_price ? `<span class="price-old-lg">${p.old_price.toFixed(2)} €</span>` : '';
-    const inCart = Cart.get().some(i => i.id === p.id);
+    const hasVars = p.variations && p.variations.length > 0;
+
+    const varHtml = hasVars ? `
+      <div style="margin:4px 0 8px">
+        <label style="font-size:13px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Размер:</label>
+        <select id="prod-var-sel" onchange="onVarChange(${p.price})" style="width:100%;border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;outline:none">
+          <option value="">— Изберете размер —</option>
+          ${p.variations.map(v => `<option value="${v.id}" data-mod="${v.price_modifier||0}" data-name="${esc(v.name)}" data-desc="${esc(v.description||'')}">${esc(v.name)}${v.description ? ' — ' + esc(v.description) : ''}</option>`).join('')}
+        </select>
+        <div id="prod-var-note" style="font-size:12px;color:#888;margin-top:5px;min-height:18px"></div>
+      </div>` : '';
 
     document.getElementById('product-content').innerHTML = `
       <div class="product-layout">
@@ -141,23 +152,25 @@ async function loadProduct() {
           <div class="product-title">${esc(p.name)}</div>
           ${p.code ? `<div class="product-code-tag">Артикул: ${esc(p.code)}</div>` : ''}
           <div class="price-block">
-            <span class="price-main">${p.price.toFixed(2)} €</span>
+            <span class="price-main" id="prod-price-main" data-base="${p.price}">${p.price.toFixed(2)} €</span>
             ${oldP}
-            <span class="price-lv-lg">(${(p.price*1.956).toFixed(2)} лв.)</span>
+            <span class="price-lv-lg" id="prod-price-lv">(${(p.price*1.956).toFixed(2)} лв.)</span>
           </div>
-          <div class="unit-note">📦 Цена за брой · Изпращаме на кашони</div>
-          <div class="delivery-info">🚚 Безплатна доставка до адрес в цялата страна</div>
+          <div class="unit-note">📦 Цена за кашон с ДДС · Безплатна доставка</div>
+          <div class="delivery-info">🚚 Изпращаме чрез Интерлогистик до адрес в цялата страна</div>
+          ${varHtml}
           <div class="qty-row">
-            <span class="qty-label">Количество:</span>
+            <span class="qty-label">Количество кашони:</span>
             <div class="qty-ctrl-lg">
               <button onclick="changeQty(-1)">−</button>
               <input type="number" id="qty-input" value="1" min="1" onchange="currentQty=Math.max(1,parseInt(this.value)||1);this.value=currentQty">
               <button onclick="changeQty(1)">+</button>
             </div>
           </div>
-          <button class="btn-add-lg ${inCart ? 'in-cart' : ''}" id="add-btn" onclick="addProduct(${p.id})">
-            ${inCart ? '✅ В количката' : '🛒 Добави в количката'}
+          <button class="btn-add-lg" id="add-btn" onclick="addProduct(${p.id}, ${hasVars})">
+            🛒 Добави в количката
           </button>
+          ${p.description ? `<div class="product-desc">${esc(p.description)}</div>` : ''}
           <div class="contact-cta">
             Нужно голямо количество? <a href="/individual-order.html">Индивидуална поръчка →</a>
           </div>
@@ -168,18 +181,46 @@ async function loadProduct() {
   }
 }
 
+function onVarChange(basePrice) {
+  const sel = document.getElementById('prod-var-sel');
+  const opt = sel.options[sel.selectedIndex];
+  const noteEl = document.getElementById('prod-var-note');
+  const priceEl = document.getElementById('prod-price-main');
+  const lvEl = document.getElementById('prod-price-lv');
+  if (!opt.value) {
+    if (noteEl) noteEl.textContent = '';
+    if (priceEl) { priceEl.textContent = basePrice.toFixed(2) + ' €'; }
+    if (lvEl) lvEl.textContent = '(' + (basePrice*1.956).toFixed(2) + ' лв.)';
+    return;
+  }
+  const mod = parseFloat(opt.dataset.mod || 0);
+  const desc = opt.dataset.desc || '';
+  const finalPrice = basePrice + mod;
+  if (noteEl) noteEl.textContent = desc;
+  if (priceEl) priceEl.textContent = finalPrice.toFixed(2) + ' €';
+  if (lvEl) lvEl.textContent = '(' + (finalPrice*1.956).toFixed(2) + ' лв.)';
+}
+
 function changeQty(delta) {
   const inp = document.getElementById('qty-input');
   currentQty = Math.max(1, (parseInt(inp.value) || 1) + delta);
   inp.value = currentQty;
 }
 
-async function addProduct(id) {
+async function addProduct(id, hasVars) {
   try {
     const res = await fetch(`/api/products/${id}`);
     const p = await res.json();
-    // Add qty times
-    for (let i = 0; i < currentQty; i++) Cart.add(p);
+
+    let variation = null;
+    if (hasVars) {
+      const sel = document.getElementById('prod-var-sel');
+      if (!sel || !sel.value) { showToast('Моля, изберете размер', 'error'); return; }
+      const varId = parseInt(sel.value);
+      variation = p.variations.find(v => v.id === varId);
+    }
+
+    for (let i = 0; i < currentQty; i++) Cart.add(p, variation);
     const btn = document.getElementById('add-btn');
     btn.className = 'btn-add-lg in-cart';
     btn.textContent = '✅ В количката';

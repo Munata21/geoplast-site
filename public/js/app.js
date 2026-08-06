@@ -86,7 +86,7 @@ function productCard(p) {
         <div class="product-code">${p.code ? `Код: ${esc(p.code)}` : ''}</div>
         <div class="product-unit-note">Цена за кашон · с ДДС</div>
         <div class="product-price">
-          <span class="price-new">${p.price.toFixed(2)} €</span>
+          <span class="price-new" id="varprice-${p.id}" data-base="${p.price}">${p.price.toFixed(2)} €</span>
           ${oldP}
           <span class="price-lv">(${(p.price * 1.956).toFixed(2)} лв.)</span>
         </div>
@@ -177,8 +177,15 @@ async function addToCart(id, hasVars) {
         });
         sel.addEventListener('change', () => {
           const qtyEl = document.getElementById(`varqty-${id}`);
+          const priceEl = document.getElementById(`varprice-${id}`);
           const opt = sel.options[sel.selectedIndex];
           if (qtyEl && opt.value) qtyEl.textContent = opt.text.split(' — ')[1] || '';
+          if (priceEl && opt.value) {
+            const mod = parseFloat(opt.dataset.priceModifier || 0);
+            const basePrice = parseFloat(priceEl.dataset.base);
+            const finalPrice = basePrice + mod;
+            priceEl.textContent = finalPrice.toFixed(2) + ' €';
+          }
         });
       }
       if (picker) picker.style.display = '';

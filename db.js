@@ -209,62 +209,86 @@ async function initDB() {
     _db.run('UPDATE products SET image = ? WHERE code = ? AND image IS NULL', [img, code]);
   }
 
-  // Update product descriptions from old WordPress site scraping
+  // Update product descriptions from old WordPress site scraping (overwrite only if empty)
   const descMap = [
-    ['GP-DB-TER',  'За захващане в бетон на различни видове термоизолации'],
-    ['GP-FA-KOL',  'За захващане на различни видове арматура'],
+    ['GP-DB-TER',  'За захващане в бетон на различни видове термоизолации.'],
+    ['GP-FA-KOL',  'За захващане на различни видове арматура.'],
+    ['GP-DT-TER',  'За захващане в тухла на различни видове термоизолации.'],
+    ['GP-DKV-PVC', 'За монтаж и закрепване на кабели и проводници към стени и тавани.'],
+    ['GP-OGR-KER', 'За поддържане на равномерно разстояние между керамични плочки при полагане.'],
+    ['GP-3D-OGR',  'Триизмерен ограничител за прецизно нивелиране на керамични изделия.'],
+    ['GP-KF-STD',  'За нивелиране и уравновесяване на плочки при монтаж. Многократно използваем.'],
+    ['GP-TI-POL',  'Дюбел с полиамиден пирон за закрепване на топлоизолационни плочи към стени и тавани.'],
+    ['GP-BET-PER', 'Дюбел с голяма периферна плоча за равномерно разпределение на натоварването при бетон.'],
+    ['GP-DV-MET',  'За захващане на минерална вата и меки изолационни материали към различни основи.'],
+    ['GP-KL-SNS',  'Клещи за затягане на фиксиращите елементи на самонивелиращата система за плочки.'],
+    ['GP-SNS-GV',  'Самонивелираща система с гайка и винт — за перфектно ниво на подовата и стенна облицовка.'],
+    ['GP-SNS-KL',  'Самонивелираща система с клин — бърз монтаж на плочки без неравности и хлабини.'],
   ];
   for (const [code, desc] of descMap) {
-    _db.run('UPDATE products SET description = ? WHERE code = ? AND (description IS NULL OR description = ?)', [desc, code, '']);
+    _db.run('UPDATE products SET description = ? WHERE code = ? AND (description IS NULL OR description = \'\')', [desc, code]);
   }
 
   // Seed product variations if none exist
   const varCount = (_db.exec('SELECT COUNT(*) as c FROM product_variations')[0]?.values[0][0]) || 0;
   if (varCount === 0) {
+    // [name, desc, sort_order, price_modifier]
     const insVar = (code, variations) => {
       const row = _db.exec(`SELECT id FROM products WHERE code = '${code}'`)[0];
       if (!row || !row.values.length) return;
       const pid = row.values[0][0];
-      variations.forEach(([name, desc, sort]) => {
-        _db.run('INSERT INTO product_variations (product_id, name, description, sort_order) VALUES (?, ?, ?, ?)',
-          [pid, name, desc, sort]);
+      variations.forEach(([name, desc, sort, pricemod = 0]) => {
+        _db.run('INSERT INTO product_variations (product_id, name, description, sort_order, price_modifier) VALUES (?, ?, ?, ?, ?)',
+          [pid, name, desc, sort, pricemod]);
       });
     };
 
     // Дюбели за Бетон — 6 размера
     insVar('GP-DB-TER', [
-      ['8×50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1],
-      ['8×70мм',  '1600 бр./кашон (пакети по 100 бр.)', 2],
-      ['8×90мм',  '1200 бр./кашон (пакети по 100 бр.)', 3],
-      ['8×110мм', '1200 бр./кашон (пакети по 100 бр.)', 4],
-      ['8×130мм', '1000 бр./кашон (пакети по 100 бр.)', 5],
-      ['8×150мм', '1000 бр./кашон (пакети по 100 бр.)', 6],
+      ['8×50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1, 0],
+      ['8×70мм',  '1600 бр./кашон (пакети по 100 бр.)', 2, 0],
+      ['8×90мм',  '1200 бр./кашон (пакети по 100 бр.)', 3, 0],
+      ['8×110мм', '1200 бр./кашон (пакети по 100 бр.)', 4, 0],
+      ['8×130мм', '1000 бр./кашон (пакети по 100 бр.)', 5, 0],
+      ['8×150мм', '1000 бр./кашон (пакети по 100 бр.)', 6, 0],
     ]);
 
     // Дюбел за кабелни връзки
     insVar('GP-DKV-PVC', [
-      ['8×40мм', '15 т./кашон (пакети по 100 бр.)', 1],
+      ['8×40мм', '15 т./кашон (пакети по 100 бр.)', 1, 0],
     ]);
 
-    // Фиксатор за арматура — колонен
+    // Фиксатор за арматура — колонен (3 размера)
     insVar('GP-FA-KOL', [
-      ['R15', '1000 бр./кашон (пакети по 100 бр.)', 1],
-      ['R20', '1000 бр./кашон (пакети по 100 бр.)', 2],
+      ['R15', '1000 бр./кашон (пакети по 100 бр.)', 1, 0],
+      ['R20', '1000 бр./кашон (пакети по 100 бр.)', 2, 0],
+      ['R25', '1000 бр./кашон (пакети по 100 бр.)', 3, 0],
     ]);
 
     // Ограничители за керамични изделия
     insVar('GP-OGR-KER', [
-      ['2мм', '200 бр./пакет · 50 пакета/кашон', 1],
-      ['3мм', '150 бр./пакет · 50 пакета/кашон', 2],
-      ['4мм', '100 бр./пакет · 50 пакета/кашон', 3],
-      ['5мм', '100 бр./пакет · 50 пакета/кашон', 4],
+      ['2мм', '200 бр./пакет · 50 пакета/кашон', 1, 0],
+      ['3мм', '150 бр./пакет · 50 пакета/кашон', 2, 0],
+      ['4мм', '100 бр./пакет · 50 пакета/кашон', 3, 0],
+      ['5мм', '100 бр./пакет · 50 пакета/кашон', 4, 0],
     ]);
 
     // Клин за фуги
     insVar('GP-KF-STD', [
-      ['6мм', '100 бр. · 50 пакета/кашон', 1],
-      ['8мм', '50 бр. · 50 пакета/кашон',  2],
+      ['6мм', '100 бр. · 50 пакета/кашон', 1, 0],
+      ['8мм', '50 бр. · 50 пакета/кашон',  2, 0],
     ]);
+  }
+
+  // Migration: add R25 variation to GP-FA-KOL if only 2 exist
+  const fakolRow = _db.exec(`SELECT id FROM products WHERE code = 'GP-FA-KOL'`)[0];
+  if (fakolRow?.values?.length) {
+    const fakolId = fakolRow.values[0][0];
+    const fakolVars = (_db.exec(`SELECT COUNT(*) FROM product_variations WHERE product_id = ${fakolId}`)[0]?.values[0][0]) || 0;
+    if (fakolVars === 2) {
+      _db.run('INSERT INTO product_variations (product_id, name, description, sort_order, price_modifier) VALUES (?, ?, ?, ?, ?)',
+        [fakolId, 'R25', '1000 бр./кашон (пакети по 100 бр.)', 3, 0]);
+    }
   }
 
   save();

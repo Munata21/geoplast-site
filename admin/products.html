@@ -265,6 +265,35 @@ tr:hover td{background:#fafafa}
           </select>
         </div>
       </div>
+
+      <!-- Variations section — only visible when editing an existing product -->
+      <div id="vars-section" style="display:none;margin-top:22px;border-top:2px solid var(--border);padding-top:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px">⚡ Вариации (размери)</div>
+          <button class="btn btn-primary btn-sm" onclick="showAddVarForm()">+ Добави</button>
+        </div>
+
+        <!-- Add variation inline form -->
+        <div id="add-var-form" style="display:none;background:#fffbf5;border:2px solid var(--orange);border-radius:8px;padding:14px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Нова вариация</div>
+          <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end">
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Размер *</label>
+              <input id="vf-name" type="text" placeholder="8×50мм" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')addVariation()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Опаковка / описание</label>
+              <input id="vf-desc" type="text" placeholder="2000 бр./кашон (пакети по 100 бр.)" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')addVariation()">
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-primary btn-sm" onclick="addVariation()">✅ Добави</button>
+              <button class="btn btn-secondary btn-sm" onclick="hideAddVarForm()">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="vars-list"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Отказ</button>
@@ -383,6 +412,8 @@ function openModal(id) {
   document.getElementById('img-preview').style.display = 'none';
   document.getElementById('img-upload-hint').style.display = 'block';
   document.getElementById('product-img-input').value = '';
+  document.getElementById('vars-section').style.display = 'none';
+  document.getElementById('add-var-form').style.display = 'none';
   document.getElementById('product-modal').classList.add('open');
 }
 
@@ -409,6 +440,10 @@ async function editProduct(id) {
     document.getElementById('img-upload-hint').style.display = 'block';
   }
   document.getElementById('product-img-input').value = '';
+  document.getElementById('add-var-form').style.display = 'none';
+  document.getElementById('vars-section').style.display = 'block';
+  currentVars = p.variations || [];
+  renderVariations();
   document.getElementById('product-modal').classList.add('open');
 }
 
@@ -471,6 +506,132 @@ function showToast(msg, type='success') {
 }
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Variation management ──────────────────────────────────────────────────────
+let currentVars = [];
+
+function renderVariations() {
+  const el = document.getElementById('vars-list');
+  if (!currentVars.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-size:13px;border:2px dashed var(--border);border-radius:8px">Няма вариации — натиснете „+ Добави" за да добавите размери</div>';
+    return;
+  }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <thead><tr style="background:#f8f9fa">
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Размер</th>
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Опаковка</th>
+      <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;width:60px">Ред</th>
+      <th style="padding:8px 12px;width:80px"></th>
+    </tr></thead>
+    <tbody>${currentVars.map(v => `
+      <tr id="var-row-${v.id}" style="border-top:1px solid #f0f0f0">
+        <td style="padding:9px 12px;font-weight:700;color:var(--navy)">${esc(v.name)}</td>
+        <td style="padding:9px 12px;color:#666;font-size:12px">${esc(v.description||'—')}</td>
+        <td style="padding:9px 12px;text-align:center;color:#aaa;font-size:12px">${v.sort_order}</td>
+        <td style="padding:6px 8px">
+          <div style="display:flex;gap:4px;justify-content:flex-end">
+            <button class="btn btn-secondary btn-sm" style="padding:4px 9px;font-size:11px" onclick="editVariation(${v.id})" title="Редактирай">✏️</button>
+            <button class="btn btn-danger btn-sm" style="padding:4px 9px;font-size:11px" onclick="deleteVariation(${v.id})" title="Изтрий">🗑</button>
+          </div>
+        </td>
+      </tr>
+      <tr id="var-edit-${v.id}" style="display:none;background:#fffbf5;border-top:2px solid var(--orange)">
+        <td colspan="4" style="padding:12px">
+          <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end">
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase">Размер *</label>
+              <input id="ve-name-${v.id}" type="text" value="${esc(v.name)}" style="width:100%;border:2px solid var(--orange);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase">Опаковка</label>
+              <input id="ve-desc-${v.id}" type="text" value="${esc(v.description||'')}" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit">
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-primary btn-sm" onclick="saveVariation(${v.id})">💾 Запази</button>
+              <button class="btn btn-secondary btn-sm" onclick="cancelEditVar(${v.id})">✕</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+function showAddVarForm() {
+  const f = document.getElementById('add-var-form');
+  f.style.display = 'block';
+  document.getElementById('vf-name').focus();
+}
+function hideAddVarForm() {
+  document.getElementById('add-var-form').style.display = 'none';
+  document.getElementById('vf-name').value = '';
+  document.getElementById('vf-desc').value = '';
+}
+
+async function addVariation() {
+  const name = document.getElementById('vf-name').value.trim();
+  if (!name) { showToast('⚠️ Въведете размер (напр. 8×50мм)', 'error'); return; }
+  const body = {
+    name,
+    description: document.getElementById('vf-desc').value.trim(),
+    sort_order: currentVars.length + 1
+  };
+  const res = await fetch(`/api/products/${editingId}/variations`, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    const updated = await (await fetch(`/api/products/${editingId}`)).json();
+    currentVars = updated.variations || [];
+    hideAddVarForm();
+    renderVariations();
+    showToast('✅ Вариацията е добавена', 'success');
+  } else showToast('Грешка при добавяне', 'error');
+}
+
+function editVariation(id) {
+  currentVars.forEach(v => { // close any other open edits
+    document.getElementById(`var-row-${v.id}`).style.display = '';
+    document.getElementById(`var-edit-${v.id}`).style.display = 'none';
+  });
+  document.getElementById(`var-row-${id}`).style.display = 'none';
+  document.getElementById(`var-edit-${id}`).style.display = '';
+  document.getElementById(`ve-name-${id}`).focus();
+}
+
+function cancelEditVar(id) {
+  document.getElementById(`var-row-${id}`).style.display = '';
+  document.getElementById(`var-edit-${id}`).style.display = 'none';
+}
+
+async function saveVariation(id) {
+  const name = document.getElementById(`ve-name-${id}`).value.trim();
+  if (!name) { showToast('⚠️ Въведете размер', 'error'); return; }
+  const v = currentVars.find(x => x.id === id);
+  const body = {
+    name,
+    description: document.getElementById(`ve-desc-${id}`).value.trim(),
+    sort_order: v ? v.sort_order : 1
+  };
+  const res = await fetch(`/api/variations/${id}`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    const updated = await (await fetch(`/api/products/${editingId}`)).json();
+    currentVars = updated.variations || [];
+    renderVariations();
+    showToast('✅ Вариацията е обновена', 'success');
+  } else showToast('Грешка при запис', 'error');
+}
+
+async function deleteVariation(id) {
+  if (!confirm('Изтриване на тази вариация?')) return;
+  const res = await fetch(`/api/variations/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    currentVars = currentVars.filter(v => v.id !== id);
+    renderVariations();
+    showToast('Вариацията е изтрита', 'success');
+  } else showToast('Грешка при изтриване', 'error');
+}
 
 document.addEventListener('DOMContentLoaded', checkAuth);
 </script>
