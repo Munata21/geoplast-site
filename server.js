@@ -11,11 +11,13 @@ const { db, initDB } = require('./db');
 let mailer = null;
 const NOTIFY_TO = process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com';
 
-async function sendViaResend(subject, html) {
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+
+async function sendViaResend(subject, html, to = NOTIFY_TO) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: 'Геопласт Магазин <onboarding@resend.dev>', to: [NOTIFY_TO], subject, html })
+    body: JSON.stringify({ from: `Геопласт Магазин <${FROM_EMAIL}>`, to: Array.isArray(to) ? to : [to], subject, html })
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
 }
@@ -72,17 +74,88 @@ function buildEmailHtml(order, items) {
     </div>`;
 }
 
+function buildCustomerEmailHtml(order, items, siteUrl) {
+  const itemsHtml = items.map(i =>
+    `<tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${i.name}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:center">${i.qty}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700">${(i.price*i.qty).toFixed(2)} €</td>
+    </tr>`
+  ).join('');
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const trackUrl = `${siteUrl}/track.html?order=${order.order_number}`;
+  return `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#333">
+      <div style="background:#1a1a2e;padding:24px;border-radius:10px 10px 0 0;text-align:center">
+        <img src="${siteUrl}/images/geoplast_logo.png" alt="Геопласт" style="height:60px;object-fit:contain">
+      </div>
+      <div style="background:#ff952b;padding:14px 24px">
+        <h2 style="margin:0;color:#fff;font-size:18px">✅ Поръчката е приета!</h2>
+      </div>
+      <div style="border:1px solid #e0e0e0;border-top:none;padding:24px;border-radius:0 0 10px 10px;background:#fff">
+        <p style="margin:0 0 6px">Здравейте, <strong>${order.customer_name}</strong>,</p>
+        <p style="margin:0 0 20px;color:#666">Получихме вашата поръчка. Ще се свържем с вас скоро за потвърждение.</p>
+
+        <div style="background:#f8f8f8;border-radius:8px;padding:14px 18px;margin-bottom:20px">
+          <div style="font-size:12px;color:#999;margin-bottom:4px">НОМЕР НА ПОРЪЧКА</div>
+          <div style="font-size:22px;font-weight:900;color:#1a1a2e">${order.order_number}</div>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+          <thead>
+            <tr style="background:#f5f5f5">
+              <th style="padding:8px 12px;text-align:left;font-size:12px;color:#666">Продукт</th>
+              <th style="padding:8px 12px;text-align:center;font-size:12px;color:#666">Бр.</th>
+              <th style="padding:8px 12px;text-align:right;font-size:12px;color:#666">Сума</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <div style="text-align:right;font-size:16px;font-weight:900;color:#ff952b;margin-bottom:24px">
+          Общо: ${total.toFixed(2)} € <span style="font-size:12px;color:#999;font-weight:400">(с ДДС + безплатна доставка)</span>
+        </div>
+
+        <div style="text-align:center;margin-bottom:24px">
+          <a href="${trackUrl}" style="display:inline-block;background:#ff952b;color:#fff;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none">
+            📦 Проследи поръчката си →
+          </a>
+        </div>
+
+        <div style="border-top:1px solid #f0f0f0;padding-top:16px;font-size:12px;color:#999;text-align:center">
+          Доставка чрез Интерлогистик · Геопласт ЕООД · 0887 77 89 92
+        </div>
+      </div>
+    </div>`;
+}
+
 async function sendOrderEmail(order, items) {
   if (!mailer) return;
-  const subject = `🛒 Нова поръчка ${order.order_number} — ${order.customer_name}`;
-  const html = buildEmailHtml(order, items);
+  const siteUrl = process.env.SITE_URL || 'https://geoplast.bg';
+
+  // Email to shop owner
+  const ownerSubject = `🛒 Нова поръчка ${order.order_number} — ${order.customer_name}`;
+  const ownerHtml = buildEmailHtml(order, items);
+
+  // Email to customer (only if they provided email and domain is verified)
+  const customerEmail = order.customer_email;
+  const customerSubject = `✅ Поръчка ${order.order_number} е приета — Геопласт`;
+  const customerHtml = buildCustomerEmailHtml(order, items, siteUrl);
+
   try {
     if (mailer === 'resend') {
-      await sendViaResend(subject, html);
+      await sendViaResend(ownerSubject, ownerHtml, NOTIFY_TO);
+      if (customerEmail) {
+        await sendViaResend(customerSubject, customerHtml, customerEmail).catch(e =>
+          console.error('Customer email error (domain not verified?):', e.message));
+      }
     } else {
-      await mailer.sendMail({ from: `"Геопласт Магазин" <${process.env.SMTP_USER}>`, to: NOTIFY_TO, subject, html });
+      await mailer.sendMail({ from: `"Геопласт Магазин" <${process.env.SMTP_USER}>`, to: NOTIFY_TO, subject: ownerSubject, html: ownerHtml });
+      if (customerEmail) {
+        await mailer.sendMail({ from: `"Геопласт Магазин" <${process.env.SMTP_USER}>`, to: customerEmail, subject: customerSubject, html: customerHtml })
+          .catch(e => console.error('Customer email error:', e.message));
+      }
     }
-    console.log(`✉️  Order email sent: ${order.order_number}`);
+    console.log(`✉️  Order emails sent: ${order.order_number}${customerEmail ? ' + customer' : ''}`);
   } catch (e) { console.error('Email error:', e.message); }
 }
 
