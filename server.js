@@ -7,29 +7,39 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const { db, initDB } = require('./db');
 
-// ── Email (nodemailer) ───────────────────────────────────────────────────────
+// ── Email (Resend API или nodemailer/SMTP) ────────────────────────────────────
 let mailer = null;
-try {
-  const nodemailer = require('nodemailer');
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    mailer = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-    });
-    console.log('✉️  Email notifications enabled →', process.env.SMTP_USER);
-  } else {
-    console.log('ℹ️  Email disabled — add SMTP_USER + SMTP_PASS to .env');
-  }
-} catch { console.log('ℹ️  nodemailer not installed — run: npm install'); }
+const NOTIFY_TO = process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com';
 
-async function sendOrderEmail(order, items) {
-  if (!mailer) return;
+async function sendViaResend(subject, html) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: 'Геопласт Магазин <onboarding@resend.dev>', to: [NOTIFY_TO], subject, html })
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+}
+
+try {
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    const nodemailer = require('nodemailer');
+    mailer = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+    console.log('✉️  Email via SMTP (Gmail) →', process.env.SMTP_USER);
+  } else if (process.env.RESEND_API_KEY) {
+    mailer = 'resend';
+    console.log('✉️  Email via Resend API →', NOTIFY_TO);
+  } else {
+    console.log('ℹ️  Email disabled — add RESEND_API_KEY or SMTP_USER+SMTP_PASS in Render env vars');
+  }
+} catch (e) { console.log('ℹ️  Email init error:', e.message); }
+
+function buildEmailHtml(order, items) {
   const itemsHtml = items.map(i =>
     `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${i.name}</td>
      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${i.qty}</td>
      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">${(i.price * i.qty).toFixed(2)} €</td></tr>`
   ).join('');
-  const html = `
+  return `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
       <div style="background:#1a1a2e;padding:20px 24px;border-radius:8px 8px 0 0">
         <h2 style="color:#fff;margin:0">🛒 Нова поръчка — Геопласт</h2>
@@ -60,13 +70,18 @@ async function sendOrderEmail(order, items) {
         </div>
       </div>
     </div>`;
+}
+
+async function sendOrderEmail(order, items) {
+  if (!mailer) return;
+  const subject = `🛒 Нова поръчка ${order.order_number} — ${order.customer_name}`;
+  const html = buildEmailHtml(order, items);
   try {
-    await mailer.sendMail({
-      from: `"Геопласт Магазин" <${process.env.SMTP_USER}>`,
-      to: process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com',
-      subject: `🛒 Нова поръчка ${order.order_number} — ${order.customer_name}`,
-      html
-    });
+    if (mailer === 'resend') {
+      await sendViaResend(subject, html);
+    } else {
+      await mailer.sendMail({ from: `"Геопласт Магазин" <${process.env.SMTP_USER}>`, to: NOTIFY_TO, subject, html });
+    }
     console.log(`✉️  Order email sent: ${order.order_number}`);
   } catch (e) { console.error('Email error:', e.message); }
 }
@@ -429,7 +444,7 @@ app.post('/api/contact', async (req, res) => {
       .run(name, phone, email || '', subject || '', message);
     console.log(`📬 Запитване от ${name} (${phone}): ${subject}`);
     if (mailer) {
-      const html = `<div style="font-family:Arial,sans-serif;max-width:600px">
+      const contactHtml = `<div style="font-family:Arial,sans-serif;max-width:600px">
         <h2 style="background:#1a1a2e;color:#fff;padding:16px 20px;border-radius:8px;margin:0 0 20px">📬 Ново запитване за оферта</h2>
         <table style="width:100%;border-collapse:collapse">
           <tr><td style="color:#666;padding:6px 0;width:100px">Имена:</td><td style="font-weight:700">${name}</td></tr>
@@ -442,12 +457,13 @@ app.post('/api/contact', async (req, res) => {
           <div style="font-size:15px;line-height:1.6">${message.replace(/\n/g,'<br>')}</div>
         </div>
       </div>`;
-      mailer.sendMail({
-        from: `"Геопласт Сайт" <${process.env.SMTP_USER}>`,
-        to: process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com',
-        subject: `📬 Запитване за оферта — ${name} (${phone})`,
-        html
-      }).catch(e => console.error('Contact email error:', e.message));
+      const contactSubject = `📬 Запитване за оферта — ${name} (${phone})`;
+      if (mailer === 'resend') {
+        sendViaResend(contactSubject, contactHtml).catch(e => console.error('Contact email error:', e.message));
+      } else {
+        mailer.sendMail({ from: `"Геопласт Сайт" <${process.env.SMTP_USER}>`, to: NOTIFY_TO, subject: contactSubject, html: contactHtml })
+          .catch(e => console.error('Contact email error:', e.message));
+      }
     }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }

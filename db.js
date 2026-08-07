@@ -280,6 +280,10 @@ async function initDB() {
     ]);
   }
 
+  // Migration: unit='кашон' for all products, 'бр.' only for клещи (sold per piece)
+  _db.run(`UPDATE products SET unit = 'кашон' WHERE unit != 'кашон' AND code != 'GP-KL-SNS'`);
+  _db.run(`UPDATE products SET unit = 'бр.' WHERE code = 'GP-KL-SNS'`);
+
   // Migration: add R25 variation to GP-FA-KOL if only 2 exist
   const fakolRow = _db.exec(`SELECT id FROM products WHERE code = 'GP-FA-KOL'`)[0];
   if (fakolRow?.values?.length) {

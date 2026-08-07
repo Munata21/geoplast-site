@@ -156,11 +156,11 @@ async function loadProduct() {
             ${oldP}
             <span class="price-lv-lg" id="prod-price-lv">(${(p.price*1.956).toFixed(2)} лв.)</span>
           </div>
-          <div class="unit-note">📦 Цена за кашон с ДДС · Безплатна доставка</div>
+          <div class="unit-note">📦 ${p.unit === 'бр.' ? 'Цена за брой · с ДДС' : 'Цена за кашон · с ДДС'}</div>
           <div class="delivery-info">🚚 Изпращаме чрез Интерлогистик до адрес в цялата страна</div>
           ${varHtml}
           <div class="qty-row">
-            <span class="qty-label">Количество кашони:</span>
+            <span class="qty-label">${p.unit === 'бр.' ? 'Количество:' : 'Количество кашони:'}</span>
             <div class="qty-ctrl-lg">
               <button onclick="changeQty(-1)">−</button>
               <input type="number" id="qty-input" value="1" min="1" onchange="currentQty=Math.max(1,parseInt(this.value)||1);this.value=currentQty">

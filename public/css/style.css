@@ -33,10 +33,10 @@ button { cursor: pointer; font-family: inherit; }
 .header { background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 200; }
 .header-inner { max-width: 1280px; margin: 0 auto; padding: 5px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 16px; min-height: 38px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
 .logo-band { background: #fff; }
-.logo-band-inner { max-width: 1280px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 20px; }
+.logo-band-inner { max-width: 1280px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 20px; }
 .logo { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-.logo-icon { width: 160px; height: 90px; background: transparent; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--orange); font-weight: 900; font-size: 22px; flex-shrink: 0; overflow: hidden; }
-.logo-icon img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.logo-icon { width: 210px; height: 115px; background: transparent; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--orange); font-weight: 900; font-size: 22px; flex-shrink: 0; overflow: hidden; }
+.logo-icon img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 .logo-name { font-size: 22px; font-weight: 900; color: var(--navy); line-height: 1.1; }
 .logo-sub { font-size: 10px; color: var(--gray-txt); text-transform: uppercase; letter-spacing: 1px; }
 .search-bar { flex: 1; display: flex; border: 2px solid var(--orange); border-radius: 8px; overflow: hidden; max-width: 560px; }
