@@ -276,7 +276,7 @@ tr:hover td{background:#fafafa}
         <!-- Add variation inline form -->
         <div id="add-var-form" style="display:none;background:#fffbf5;border:2px solid var(--orange);border-radius:8px;padding:14px;margin-bottom:12px">
           <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Нова вариация</div>
-          <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end">
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:end">
             <div>
               <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Размер *</label>
               <input id="vf-name" type="text" placeholder="8×50мм" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')addVariation()">
@@ -284,6 +284,10 @@ tr:hover td{background:#fafafa}
             <div>
               <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Опаковка / описание</label>
               <input id="vf-desc" type="text" placeholder="2000 бр./кашон (пакети по 100 бр.)" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')addVariation()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Цена (€)</label>
+              <input id="vf-price" type="number" step="0.01" min="0" placeholder="0.00" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')addVariation()">
             </div>
             <div style="display:flex;gap:6px">
               <button class="btn btn-primary btn-sm" onclick="addVariation()">✅ Добави</button>
@@ -308,6 +312,7 @@ tr:hover td{background:#fafafa}
 let allProducts = [];
 let editingId = null;
 let selectedFile = null;
+let currentBasePrice = 0;
 let catEmojis = { 'dubeli-izolacia':'🔩','dubeli-kabelni':'🔗','fiksatori-armatura':'🔧','ogranicheteli':'🧱','klin-fugi':'📐' };
 let catNames = { 'dubeli-izolacia':'Дюбели изолация','dubeli-kabelni':'Дюбели кабелни','fiksatori-armatura':'Фиксатори арматура','ogranicheteli':'Ограничители','klin-fugi':'Клин фуги' };
 
@@ -442,6 +447,7 @@ async function editProduct(id) {
   document.getElementById('product-img-input').value = '';
   document.getElementById('add-var-form').style.display = 'none';
   document.getElementById('vars-section').style.display = 'block';
+  currentBasePrice = parseFloat(p.price) || 0;
   currentVars = p.variations || [];
   renderVariations();
   document.getElementById('product-modal').classList.add('open');
@@ -520,14 +526,14 @@ function renderVariations() {
     <thead><tr style="background:#f8f9fa">
       <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Размер</th>
       <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Опаковка</th>
-      <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;width:60px">Ред</th>
+      <th style="padding:8px 12px;text-align:right;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;width:90px">Цена</th>
       <th style="padding:8px 12px;width:80px"></th>
     </tr></thead>
     <tbody>${currentVars.map(v => `
       <tr id="var-row-${v.id}" style="border-top:1px solid #f0f0f0">
         <td style="padding:9px 12px;font-weight:700;color:var(--navy)">${esc(v.name)}</td>
         <td style="padding:9px 12px;color:#666;font-size:12px">${esc(v.description||'—')}</td>
-        <td style="padding:9px 12px;text-align:center;color:#aaa;font-size:12px">${v.sort_order}</td>
+        <td style="padding:9px 12px;text-align:right;font-weight:700;color:var(--orange)">${(currentBasePrice + (v.price_modifier||0)).toFixed(2)} €</td>
         <td style="padding:6px 8px">
           <div style="display:flex;gap:4px;justify-content:flex-end">
             <button class="btn btn-secondary btn-sm" style="padding:4px 9px;font-size:11px" onclick="editVariation(${v.id})" title="Редактирай">✏️</button>
@@ -537,7 +543,7 @@ function renderVariations() {
       </tr>
       <tr id="var-edit-${v.id}" style="display:none;background:#fffbf5;border-top:2px solid var(--orange)">
         <td colspan="4" style="padding:12px">
-          <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;align-items:end">
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:end">
             <div>
               <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase">Размер *</label>
               <input id="ve-name-${v.id}" type="text" value="${esc(v.name)}" style="width:100%;border:2px solid var(--orange);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit">
@@ -545,6 +551,10 @@ function renderVariations() {
             <div>
               <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase">Опаковка</label>
               <input id="ve-desc-${v.id}" type="text" value="${esc(v.description||'')}" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase">Цена (€)</label>
+              <input id="ve-price-${v.id}" type="number" step="0.01" min="0" value="${(currentBasePrice + (v.price_modifier||0)).toFixed(2)}" style="width:100%;border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit">
             </div>
             <div style="display:flex;gap:6px">
               <button class="btn btn-primary btn-sm" onclick="saveVariation(${v.id})">💾 Запази</button>
@@ -571,9 +581,11 @@ function hideAddVarForm() {
 async function addVariation() {
   const name = document.getElementById('vf-name').value.trim();
   if (!name) { showToast('⚠️ Въведете размер (напр. 8×50мм)', 'error'); return; }
+  const enteredPrice = parseFloat(document.getElementById('vf-price').value) || currentBasePrice;
   const body = {
     name,
     description: document.getElementById('vf-desc').value.trim(),
+    price_modifier: parseFloat((enteredPrice - currentBasePrice).toFixed(4)),
     sort_order: currentVars.length + 1
   };
   const res = await fetch(`/api/products/${editingId}/variations`, {
@@ -583,6 +595,7 @@ async function addVariation() {
     const updated = await (await fetch(`/api/products/${editingId}`)).json();
     currentVars = updated.variations || [];
     hideAddVarForm();
+    document.getElementById('vf-price').value = '';
     renderVariations();
     showToast('✅ Вариацията е добавена', 'success');
   } else showToast('Грешка при добавяне', 'error');
@@ -607,9 +620,11 @@ async function saveVariation(id) {
   const name = document.getElementById(`ve-name-${id}`).value.trim();
   if (!name) { showToast('⚠️ Въведете размер', 'error'); return; }
   const v = currentVars.find(x => x.id === id);
+  const enteredPrice = parseFloat(document.getElementById(`ve-price-${id}`).value) || currentBasePrice;
   const body = {
     name,
     description: document.getElementById(`ve-desc-${id}`).value.trim(),
+    price_modifier: parseFloat((enteredPrice - currentBasePrice).toFixed(4)),
     sort_order: v ? v.sort_order : 1
   };
   const res = await fetch(`/api/variations/${id}`, {
