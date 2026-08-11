@@ -581,7 +581,8 @@ function hideAddVarForm() {
 async function addVariation() {
   const name = document.getElementById('vf-name').value.trim();
   if (!name) { showToast('⚠️ Въведете размер (напр. 8×50мм)', 'error'); return; }
-  const enteredPrice = parseFloat(document.getElementById('vf-price').value) || currentBasePrice;
+  const _vfRaw = document.getElementById('vf-price').value;
+  const enteredPrice = _vfRaw !== '' ? (parseFloat(_vfRaw) || 0) : currentBasePrice;
   const body = {
     name,
     description: document.getElementById('vf-desc').value.trim(),
@@ -620,7 +621,8 @@ async function saveVariation(id) {
   const name = document.getElementById(`ve-name-${id}`).value.trim();
   if (!name) { showToast('⚠️ Въведете размер', 'error'); return; }
   const v = currentVars.find(x => x.id === id);
-  const enteredPrice = parseFloat(document.getElementById(`ve-price-${id}`).value) || currentBasePrice;
+  const _veRaw = document.getElementById(`ve-price-${id}`).value;
+  const enteredPrice = _veRaw !== '' ? (parseFloat(_veRaw) || 0) : currentBasePrice;
   const body = {
     name,
     description: document.getElementById(`ve-desc-${id}`).value.trim(),
