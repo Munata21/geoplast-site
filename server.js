@@ -297,11 +297,22 @@ app.put('/api/products/:id', requireAdmin, upload.single('image'), (req, res) =>
   const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Not found' });
   const image = req.file ? `/uploads/${req.file.filename}` : existing.image;
+  const newPrice = parseFloat(price);
+  const oldPrice = parseFloat(existing.price);
   db.prepare(`
     UPDATE products SET name=?, description=?, price=?, old_price=?, category=?, code=?, stock=?, unit=?, image=?, active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?
-  `).run(name, description, parseFloat(price), old_price ? parseFloat(old_price) : null,
+  `).run(name, description, newPrice, old_price ? parseFloat(old_price) : null,
     category, code, parseInt(stock) || 0, unit || 'бр.', image,
     active !== undefined ? parseInt(active) : existing.active, req.params.id);
+  // When base price changes, keep absolute variation prices stable by adjusting modifiers
+  if (newPrice !== oldPrice) {
+    const variations = db.prepare('SELECT id, price_modifier FROM product_variations WHERE product_id = ?').all(req.params.id);
+    for (const v of variations) {
+      const absPrice = oldPrice + (v.price_modifier || 0);
+      const newMod = parseFloat((absPrice - newPrice).toFixed(4));
+      db.prepare('UPDATE product_variations SET price_modifier = ? WHERE id = ?').run(newMod, v.id);
+    }
+  }
   res.json({ ok: true });
 });
 

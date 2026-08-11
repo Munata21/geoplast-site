@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сертификати — Геопласт</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.cert-wrapper { max-width: 860px; margin: 30px auto; padding: 0 20px; }
+.cert-box { background: #fff; border-radius: 10px; padding: 32px; box-shadow: 0 1px 6px rgba(0,0,0,.08); margin-bottom: 20px; }
+.cert-box h2 { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--orange); }
+.cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.cert-card { border: 2px solid var(--border); border-radius: 10px; padding: 20px; display: flex; gap: 14px; align-items: flex-start; transition: border-color .2s; }
+.cert-card:hover { border-color: var(--orange); }
+.cert-icon { font-size: 32px; flex-shrink: 0; }
+.cert-card strong { display: block; font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.cert-card span { font-size: 12px; color: var(--gray-txt); line-height: 1.5; }
+.cert-note { background: var(--navy); border-radius: 10px; padding: 20px 24px; color: #fff; display: flex; align-items: center; gap: 16px; }
+.cert-note span { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-marquee"><span>✅ Сертифицирани продукти | 🏭 Директно от производителя | 📞 0887 77 89 92</span></div>
+    <div class="top-bar-contacts"><a href="tel:0887778992">0887 77 89 92</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-phone">
+      <a href="tel:0887778992" id="hdr-phone">0887 77 89 92</a>
+      <span>08:00–17:00</span>
+    </div>
+    <a href="/cart.html" class="cart-btn">
+      🛒 Количка <span class="cart-count" id="cart-count" style="display:none">0</span>
+    </a>
+  </div>
+  <div class="logo-band">
+    <div class="logo-band-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon" id="site-logo">GP</div>
+        <div><div class="logo-name">Геопласт</div><div class="logo-sub">Крепежни Елементи</div></div>
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="header-nav">
+  <div class="header-nav-inner">
+    <div class="nav-links">
+      <a href="/">Начало</a>
+      <a href="/#products-section">Магазин</a>
+      <a href="/individual-order.html">Индивидуална поръчка</a>
+      <a href="/contact.html">Контакти</a>
+      <a href="/sertifikati.html" class="active">Сертификати</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>✅ Сертификати</h1>
+  <p>Всички наши продукти отговарят на европейските стандарти за качество</p>
+</div>
+
+<div class="cert-wrapper">
+
+  <div class="cert-box">
+    <h2>Сертификати за качество</h2>
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-icon">📋</div>
+        <div>
+          <strong>CE Маркировка</strong>
+          <span>Всички продукти са сертифицирани по европейските норми за строителни материали</span>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🏗️</div>
+        <div>
+          <strong>Строителни стандарти</strong>
+          <span>Продуктите отговарят на изискванията на действащите строителни наредби</span>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🔬</div>
+        <div>
+          <strong>Изпитвания на натоварване</strong>
+          <span>Дюбелите и фиксаторите са тествани за максимални натоварвания и издръжливост</span>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">🌡️</div>
+        <div>
+          <strong>Температурна устойчивост</strong>
+          <span>Продуктите са тествани за работа при екстремни температурни условия</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-note">
+    <div style="font-size:32px;flex-shrink:0">📞</div>
+    <span>За копие на конкретен сертификат или техническа документация се свържете с нас на <strong style="color:#fff">0887 77 89 92</strong> или на <strong style="color:#fff">geoplast.v.eood@gmail.com</strong></span>
+  </div>
+
+</div>
+
+<footer style="margin-top:40px">
+  <div class="footer-bottom" style="text-align:center;justify-content:center">
+    <span>© 2026 Геопласт ЕООД · <a href="/gdpr.html" style="color:rgba(255,255,255,.4)">Политика за данните</a></span>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => { Cart.updateHeader(); loadSettings(); });
+</script>
+</body>
+</html>

@@ -132,6 +132,18 @@ async function loadProduct() {
     const oldP = p.old_price ? `<span class="price-old-lg">${p.old_price.toFixed(2)} €</span>` : '';
     const hasVars = p.variations && p.variations.length > 0;
 
+    let priceRangeText = '';
+    if (hasVars) {
+      const varPrices = p.variations.map(v => p.price + (v.price_modifier || 0)).filter(px => px > 0);
+      if (varPrices.length > 0) {
+        const minP = Math.min(...varPrices);
+        const maxP = Math.max(...varPrices);
+        priceRangeText = minP < maxP ? `от ${minP.toFixed(2)}€ до ${maxP.toFixed(2)}€` : '';
+      }
+    }
+    const priceDisplayText = priceRangeText || (p.price.toFixed(2) + ' €');
+    const unitNote = p.unit === 'бр.' ? 'Цена за брой · с ДДС' : p.unit === 'кутия' ? 'Цена за кутия · с ДДС' : 'Цена за кашон · с ДДС';
+
     const varHtml = hasVars ? `
       <div style="margin:4px 0 8px">
         <label style="font-size:13px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Размер:</label>
@@ -153,10 +165,10 @@ async function loadProduct() {
           <div class="product-title">${esc(p.name)}</div>
           ${p.code ? `<div class="product-code-tag">Артикул: ${esc(p.code)}</div>` : ''}
           <div class="price-block">
-            <span class="price-main" id="prod-price-main" data-base="${p.price}">${p.price.toFixed(2)} €</span>
+            <span class="price-main" id="prod-price-main" data-base="${p.price}" data-range="${esc(priceRangeText)}">${priceDisplayText}</span>
             ${oldP}
           </div>
-          <div class="unit-note">📦 ${p.unit === 'бр.' ? 'Цена за брой · с ДДС' : 'Цена за кашон · с ДДС'}</div>
+          <div class="unit-note">📦 ${unitNote}</div>
           <div class="delivery-info">🚚 Изпращаме чрез Интерлогистик до адрес в цялата страна</div>
           ${varHtml}
           <div class="qty-row">
@@ -188,12 +200,15 @@ function onVarChange(basePrice) {
   const priceEl = document.getElementById('prod-price-main');
   if (!opt.value) {
     if (noteEl) noteEl.textContent = '';
-    if (priceEl) { priceEl.textContent = basePrice.toFixed(2) + ' €'; }
+    if (priceEl) {
+      const rangeText = priceEl.dataset.range;
+      priceEl.textContent = rangeText || (basePrice.toFixed(2) + ' €');
+    }
     return;
   }
   const mod = parseFloat(opt.dataset.mod || 0);
   const desc = opt.dataset.desc || '';
-  const finalPrice = basePrice + mod;
+  const finalPrice = Math.max(0, basePrice + mod);
   if (noteEl) noteEl.textContent = desc;
   if (priceEl) priceEl.textContent = finalPrice.toFixed(2) + ' €';
 }
