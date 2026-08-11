@@ -23,13 +23,13 @@ async function sendViaResend(subject, html, to = NOTIFY_TO) {
 }
 
 try {
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+  if (process.env.RESEND_API_KEY) {
+    mailer = 'resend';
+    console.log('✉️  Email via Resend API →', NOTIFY_TO);
+  } else if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     const nodemailer = require('nodemailer');
     mailer = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
     console.log('✉️  Email via SMTP (Gmail) →', process.env.SMTP_USER);
-  } else if (process.env.RESEND_API_KEY) {
-    mailer = 'resend';
-    console.log('✉️  Email via Resend API →', NOTIFY_TO);
   } else {
     console.log('ℹ️  Email disabled — add RESEND_API_KEY or SMTP_USER+SMTP_PASS in Render env vars');
   }
