@@ -189,44 +189,25 @@ async function initDB() {
     }
   }
 
-  // Backfill images for products seeded without image paths
-  const imageMap = [
-    ['GP-TI-POL',  '/images/products/wp_1158.png'],
-    ['GP-BET-PER', '/images/products/wp_1159.png'],
-    ['GP-DV-MET',  '/images/products/wp_1777.jpeg'],
-    ['GP-DT-TER',  '/images/products/wp_1775.png'],
-    ['GP-DB-TER',  '/images/products/wp_1759.png'],
-    ['GP-DKV-PVC', '/images/products/wp_865.jpg'],
-    ['GP-FA-KOL',  '/images/products/wp_870.jpg'],
-    ['GP-3D-OGR',  '/images/products/wp_1769.png'],
-    ['GP-OGR-KER', '/images/products/wp_871.jpg'],
-    ['GP-KF-STD',  '/images/products/wp_1162.png'],
-    ['GP-KL-SNS',  '/images/products/wp_1770.png'],
-    ['GP-SNS-GV',  '/images/products/wp_1754.png'],
-    ['GP-SNS-KL',  '/images/products/wp_1751.jpg'],
+  // Master product data — applied on EVERY startup so deploys never lose correct data
+  // [code, name, image, description]
+  const masterData = [
+    ['GP-TI-POL',  'ДЮБЕЛИ ЗА ТОПЛОИЗОЛАЦИЯ С ПОЛИАМИДЕН ПИРОН',                    '/images/products/wp_1158.png',  'Дюбел с полиамиден пирон за закрепване на топлоизолационни плочи към стени и тавани.'],
+    ['GP-BET-PER', 'Дюбел за бетон с голяма периферия за високи натоварвания',        '/images/products/wp_1159.png',  'Дюбел с голяма периферна плоча за равномерно разпределение на натоварването при бетон.'],
+    ['GP-DV-MET',  'Дюбел за вата',                                                   '/images/products/wp_1777.jpeg', 'За захващане на минерална вата и меки изолационни материали към различни основи.'],
+    ['GP-DT-TER',  'Дюбел за тухла',                                                  '/images/products/wp_1775.png',  'За захващане в тухла на различни видове термоизолации.'],
+    ['GP-DB-TER',  'Дюбел за Бетон',                                                  '/images/products/wp_1759.png',  'За захващане в бетон на различни видове термоизолации.'],
+    ['GP-DKV-PVC', 'Дюбел за кабелни връзки',                                         '/images/products/wp_865.jpg',   'За монтаж и закрепване на кабели и проводници към стени и тавани.'],
+    ['GP-FA-KOL',  'Фиксатор за арматура – колонен',                                  '/images/products/wp_870.jpg',   'За захващане на различни видове арматура.'],
+    ['GP-3D-OGR',  '3D Ограничители за керамични изделия',                            '/images/products/wp_1769.png',  'Триизмерен ограничител за прецизно нивелиране на керамични изделия.'],
+    ['GP-OGR-KER', 'Ограничители за керамични изделия',                               '/images/products/wp_871.jpg',   'За поддържане на равномерно разстояние между керамични плочки при полагане.'],
+    ['GP-KF-STD',  'Клин за фуги',                                                    '/images/products/wp_1162.png',  'За нивелиране и уравновесяване на плочки при монтаж. Многократно използваем.'],
+    ['GP-KL-SNS',  'Клещи за самонивелиращи системи',                                 '/images/products/wp_1770.png',  'Клещи за затягане на фиксиращите елементи на самонивелиращата система за плочки.'],
+    ['GP-SNS-GV',  'Самонивелираща система за плочки – затягаща гайка с винт',        '/images/products/wp_1754.png',  'Самонивелираща система с гайка и винт — за перфектно ниво на подовата и стенна облицовка.'],
+    ['GP-SNS-KL',  'Самонивелираща система за плочки с клин',                         '/images/products/wp_1751.jpg',  'Самонивелираща система с клин — бърз монтаж на плочки без неравности и хлабини.'],
   ];
-  for (const [code, img] of imageMap) {
-    _db.run('UPDATE products SET image = ? WHERE code = ? AND image IS NULL', [img, code]);
-  }
-
-  // Update product descriptions from old WordPress site scraping (overwrite only if empty)
-  const descMap = [
-    ['GP-DB-TER',  'За захващане в бетон на различни видове термоизолации.'],
-    ['GP-FA-KOL',  'За захващане на различни видове арматура.'],
-    ['GP-DT-TER',  'За захващане в тухла на различни видове термоизолации.'],
-    ['GP-DKV-PVC', 'За монтаж и закрепване на кабели и проводници към стени и тавани.'],
-    ['GP-OGR-KER', 'За поддържане на равномерно разстояние между керамични плочки при полагане.'],
-    ['GP-3D-OGR',  'Триизмерен ограничител за прецизно нивелиране на керамични изделия.'],
-    ['GP-KF-STD',  'За нивелиране и уравновесяване на плочки при монтаж. Многократно използваем.'],
-    ['GP-TI-POL',  'Дюбел с полиамиден пирон за закрепване на топлоизолационни плочи към стени и тавани.'],
-    ['GP-BET-PER', 'Дюбел с голяма периферна плоча за равномерно разпределение на натоварването при бетон.'],
-    ['GP-DV-MET',  'За захващане на минерална вата и меки изолационни материали към различни основи.'],
-    ['GP-KL-SNS',  'Клещи за затягане на фиксиращите елементи на самонивелиращата система за плочки.'],
-    ['GP-SNS-GV',  'Самонивелираща система с гайка и винт — за перфектно ниво на подовата и стенна облицовка.'],
-    ['GP-SNS-KL',  'Самонивелираща система с клин — бърз монтаж на плочки без неравности и хлабини.'],
-  ];
-  for (const [code, desc] of descMap) {
-    _db.run('UPDATE products SET description = ? WHERE code = ? AND (description IS NULL OR description = \'\')', [desc, code]);
+  for (const [code, name, img, desc] of masterData) {
+    _db.run('UPDATE products SET name = ?, image = ?, description = ? WHERE code = ?', [name, img, desc, code]);
   }
 
   // Seed product variations if none exist
