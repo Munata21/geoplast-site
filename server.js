@@ -327,16 +327,24 @@ app.post('/api/orders', (req, res) => {
     parseFloat(courier_price) || 0, payment_method || 'cod', notes || '',
     products_total, total);
 
-  const orderId = r.lastInsertRowid;
+  const orderId = Number(r.lastInsertRowid);
   console.log(`[ORDER] ${orderNum} created id=${orderId}, ${items.length} items, total=${total}`);
-  const ins = db.prepare('INSERT INTO order_items (order_id, product_id, product_name, price, qty) VALUES (?, ?, ?, ?, ?)');
   for (const item of items) {
     const itemName = String(item.name || '').trim() || 'Продукт';
     const itemPrice = parseFloat(item.price) || 0;
     const itemQty = parseInt(item.qty) || 1;
-    ins.run(orderId, item.id || null, itemName, itemPrice, itemQty);
-    console.log(`  item: ${itemName} x${itemQty} @ ${itemPrice}`);
-    if (item.id) db.prepare('UPDATE products SET stock = MAX(0, stock - ?) WHERE id = ?').run(itemQty, item.id);
+    try {
+      db.prepare('INSERT INTO order_items (order_id, product_id, product_name, price, qty) VALUES (?, ?, ?, ?, ?)')
+        .run(orderId, item.id ? Number(item.id) : null, itemName, itemPrice, itemQty);
+      console.log(`  [ITEM OK] ${itemName} x${itemQty} @ ${itemPrice}`);
+    } catch (e) {
+      console.error(`  [ITEM ERR] ${itemName}: ${e.message}`);
+    }
+    if (item.id) {
+      try {
+        db.prepare('UPDATE products SET stock = MAX(0, stock - ?) WHERE id = ?').run(itemQty, Number(item.id));
+      } catch (e) { console.error(`  [STOCK ERR] id=${item.id}: ${e.message}`); }
+    }
   }
 
   // Send email notification
