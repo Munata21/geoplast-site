@@ -11,7 +11,7 @@ const { db, initDB } = require('./db');
 let mailer = null;
 const NOTIFY_TO = process.env.NOTIFY_EMAIL || 'geoplast.v.eood@gmail.com';
 
-const FROM_EMAIL = 'onboarding@resend.dev';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@geoplast.bg';
 
 async function sendViaResend(subject, html, to = NOTIFY_TO) {
   const res = await fetch('https://api.resend.com/emails', {
