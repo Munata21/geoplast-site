@@ -154,7 +154,6 @@ async function loadProduct() {
           <div class="price-block">
             <span class="price-main" id="prod-price-main" data-base="${p.price}">${p.price.toFixed(2)} €</span>
             ${oldP}
-            <span class="price-lv-lg" id="prod-price-lv">(${(p.price*1.956).toFixed(2)} лв.)</span>
           </div>
           <div class="unit-note">📦 ${p.unit === 'бр.' ? 'Цена за брой · с ДДС' : 'Цена за кашон · с ДДС'}</div>
           <div class="delivery-info">🚚 Изпращаме чрез Интерлогистик до адрес в цялата страна</div>
@@ -186,11 +185,9 @@ function onVarChange(basePrice) {
   const opt = sel.options[sel.selectedIndex];
   const noteEl = document.getElementById('prod-var-note');
   const priceEl = document.getElementById('prod-price-main');
-  const lvEl = document.getElementById('prod-price-lv');
   if (!opt.value) {
     if (noteEl) noteEl.textContent = '';
     if (priceEl) { priceEl.textContent = basePrice.toFixed(2) + ' €'; }
-    if (lvEl) lvEl.textContent = '(' + (basePrice*1.956).toFixed(2) + ' лв.)';
     return;
   }
   const mod = parseFloat(opt.dataset.mod || 0);
@@ -198,7 +195,6 @@ function onVarChange(basePrice) {
   const finalPrice = basePrice + mod;
   if (noteEl) noteEl.textContent = desc;
   if (priceEl) priceEl.textContent = finalPrice.toFixed(2) + ' €';
-  if (lvEl) lvEl.textContent = '(' + (finalPrice*1.956).toFixed(2) + ' лв.)';
 }
 
 function changeQty(delta) {

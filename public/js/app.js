@@ -88,7 +88,6 @@ function productCard(p) {
         <div class="product-price">
           <span class="price-new" id="varprice-${p.id}" data-base="${p.price}">${p.price.toFixed(2)} €</span>
           ${oldP}
-          <span class="price-lv">(${(p.price * 1.956).toFixed(2)} лв.)</span>
         </div>
         ${varPicker}
         <button class="btn-buy" onclick="addToCart(${p.id}, ${hasVars})" data-pid="${p.id}">

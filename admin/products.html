@@ -165,6 +165,7 @@ tr:hover td{background:#fafafa}
             <option value="fiksatori-armatura">Фиксатори арматура</option>
             <option value="ogranicheteli">Ограничители</option>
             <option value="klin-fugi">Клин за фуги</option>
+            <option value="samoniveliraschi">Самонивелиращи системи</option>
           </select>
         </div>
         <table>
@@ -242,6 +243,7 @@ tr:hover td{background:#fafafa}
             <option value="fiksatori-armatura">Фиксатори за арматура</option>
             <option value="ogranicheteli">Ограничители за керамика</option>
             <option value="klin-fugi">Клин за фуги</option>
+            <option value="samoniveliraschi">Самонивелиращи системи</option>
           </select>
         </div>
         <div class="form-group">
@@ -313,8 +315,8 @@ let allProducts = [];
 let editingId = null;
 let selectedFile = null;
 let currentBasePrice = 0;
-let catEmojis = { 'dubeli-izolacia':'🔩','dubeli-kabelni':'🔗','fiksatori-armatura':'🔧','ogranicheteli':'🧱','klin-fugi':'📐' };
-let catNames = { 'dubeli-izolacia':'Дюбели изолация','dubeli-kabelni':'Дюбели кабелни','fiksatori-armatura':'Фиксатори арматура','ogranicheteli':'Ограничители','klin-fugi':'Клин фуги' };
+let catEmojis = { 'dubeli-izolacia':'🔩','dubeli-kabelni':'🔗','fiksatori-armatura':'🔧','ogranicheteli':'🧱','klin-fugi':'📐','samoniveliraschi':'📏' };
+let catNames = { 'dubeli-izolacia':'Дюбели изолация','dubeli-kabelni':'Дюбели кабелни','fiksatori-armatura':'Фиксатори арматура','ogranicheteli':'Ограничители','klin-fugi':'Клин фуги','samoniveliraschi':'Самонивелиращи системи' };
 
 async function doLogin() {
   const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: document.getElementById('admin-pass').value }) });
