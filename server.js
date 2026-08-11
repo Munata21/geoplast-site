@@ -327,7 +327,9 @@ app.post('/api/orders', (req, res) => {
     parseFloat(courier_price) || 0, payment_method || 'cod', notes || '',
     products_total, total);
 
-  const orderId = Number(r.lastInsertRowid);
+  // lastInsertRowid from sql.js adapter is unreliable — query directly
+  const insertedOrder = db.prepare('SELECT id FROM orders WHERE order_number = ?').get(orderNum);
+  const orderId = insertedOrder ? Number(insertedOrder.id) : 0;
   console.log(`[ORDER] ${orderNum} created id=${orderId}, ${items.length} items, total=${total}`);
   for (const item of items) {
     const itemName = String(item.name || '').trim() || 'Продукт';
