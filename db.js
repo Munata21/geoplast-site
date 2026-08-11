@@ -228,6 +228,30 @@ async function initDB() {
       });
     };
 
+    // ДЮБЕЛИ ЗА БЕТОН (GP-TI-POL) — 6 размера
+    insVar('GP-TI-POL', [
+      ['8х50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1,  7.6],
+      ['8х70мм',  '1600 бр./кашон (пакети по 100 бр.)', 2, -2],
+      ['8х90мм',  '1200 бр./кашон (пакети по 100 бр.)', 3, -3.92],
+      ['8х110мм', '1200 бр./кашон (пакети по 100 бр.)', 4,  0.4],
+      ['8х130мм', '1000 бр./кашон (пакети по 100 бр.)', 5, -0.8],
+      ['8х150мм', '1000 бр./кашон (пакети по 100 бр.)', 6, 14.8],
+    ]);
+
+    // ДЮБЕЛИ ЗА ТУХЛА С ПЛАСТМАСОВ ПИРОН (GP-BET-PER) — 5 размера
+    insVar('GP-BET-PER', [
+      ['10х100мм', '1000 бр./кашон (пакети по 100 бр.)', 1,  0],
+      ['10х120мм', '800 бр./кашон (пакети по 100 бр.)',  2,  3.02],
+      ['10х140мм', '600 бр./кашон (пакети по 100 бр.)',  3, 16.12],
+      ['10х160мм', '600 бр./кашон (пакети по 100 бр.)',  4,  6.04],
+      ['10х200мм', '400 бр./кашон (пакети по 100 бр.)',  5, 31],
+    ]);
+
+    // Дюбел за вата (GP-DV-MET)
+    insVar('GP-DV-MET', [
+      ['10х140мм', '2000 бр./кашон', 1, 0],
+    ]);
+
     // Дюбели за Бетон — 6 размера
     insVar('GP-DB-TER', [
       ['8×50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1, 0],
@@ -277,6 +301,42 @@ async function initDB() {
   ];
   for (const [code, unit] of unitMap) {
     _db.run(`UPDATE products SET unit = '${unit}' WHERE code = '${code}'`);
+  }
+
+  // One-time: restore missing variations for GP-TI-POL, GP-BET-PER, GP-DV-MET
+  const restoreVarsDone = _db.exec(`SELECT value FROM settings WHERE key='migration_restore_vars_v1'`);
+  if (!restoreVarsDone.length || !restoreVarsDone[0].values.length) {
+    const ensureVars = (code, variations) => {
+      const row = _db.exec(`SELECT id FROM products WHERE code = '${code}'`)[0];
+      if (!row?.values?.length) return;
+      const pid = row.values[0][0];
+      const cnt = (_db.exec(`SELECT COUNT(*) FROM product_variations WHERE product_id = ${pid}`)[0]?.values[0][0]) || 0;
+      if (cnt === 0) {
+        variations.forEach(([name, desc, sort, mod]) => {
+          _db.run('INSERT INTO product_variations (product_id, name, description, sort_order, price_modifier) VALUES (?, ?, ?, ?, ?)',
+            [pid, name, desc, sort, mod]);
+        });
+      }
+    };
+    ensureVars('GP-TI-POL', [
+      ['8х50мм',  '2000 бр./кашон (пакети по 100 бр.)', 1,  7.6],
+      ['8х70мм',  '1600 бр./кашон (пакети по 100 бр.)', 2, -2],
+      ['8х90мм',  '1200 бр./кашон (пакети по 100 бр.)', 3, -3.92],
+      ['8х110мм', '1200 бр./кашон (пакети по 100 бр.)', 4,  0.4],
+      ['8х130мм', '1000 бр./кашон (пакети по 100 бр.)', 5, -0.8],
+      ['8х150мм', '1000 бр./кашон (пакети по 100 бр.)', 6, 14.8],
+    ]);
+    ensureVars('GP-BET-PER', [
+      ['10х100мм', '1000 бр./кашон (пакети по 100 бр.)', 1,  0],
+      ['10х120мм', '800 бр./кашон (пакети по 100 бр.)',  2,  3.02],
+      ['10х140мм', '600 бр./кашон (пакети по 100 бр.)',  3, 16.12],
+      ['10х160мм', '600 бр./кашон (пакети по 100 бр.)',  4,  6.04],
+      ['10х200мм', '400 бр./кашон (пакети по 100 бр.)',  5, 31],
+    ]);
+    ensureVars('GP-DV-MET', [
+      ['10х140мм', '2000 бр./кашон', 1, 0],
+    ]);
+    _db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('migration_restore_vars_v1', 'done')`);
   }
 
   // One-time: fix broken negative price_modifier on GP-DV-MET variation
