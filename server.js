@@ -387,10 +387,40 @@ app.get('/api/orders/:id', requireAdmin, (req, res) => {
   res.json(order);
 });
 
-app.put('/api/orders/:id/status', requireAdmin, (req, res) => {
+app.put('/api/orders/:id/status', requireAdmin, async (req, res) => {
   const { status, tracking_number } = req.body;
+  const order = db.prepare('SELECT * FROM orders WHERE id=?').get(req.params.id);
+  if (!order) return res.status(404).json({ error: 'Not found' });
+
   db.prepare('UPDATE orders SET status=?, tracking_number=?, updated_at=CURRENT_TIMESTAMP WHERE id=?')
     .run(status, tracking_number || null, req.params.id);
+
+  // Send status notification to customer if they provided email
+  if (order.customer_email && mailer) {
+    const labels = { pending:'В очакване', processing:'В обработка', shipped:'Изпратена', delivered:'Доставена', cancelled:'Отказана' };
+    const statusBg = { pending:'#888', processing:'#2563eb', shipped:'#f59e0b', delivered:'#16a34a', cancelled:'#dc2626' };
+    const label = labels[status] || status;
+    const color = statusBg[status] || '#888';
+    const trackHtml = tracking_number ? `<p style="margin:16px 0 0"><strong>Номер за проследяване:</strong> ${tracking_number}</p>` : '';
+    const html = `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+        <div style="background:#1a1a2e;padding:20px 24px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0">📦 Статус на поръчка — Геопласт</h2>
+          <div style="color:#ff952b;font-size:16px;font-weight:700;margin-top:6px">${order.order_number}</div>
+        </div>
+        <div style="border:1px solid #e0e0e0;border-top:none;padding:24px;border-radius:0 0 8px 8px">
+          <p style="margin:0 0 16px">Здравейте, <strong>${order.customer_name}</strong>,</p>
+          <p style="margin:0 0 16px">Статусът на вашата поръчка беше променен:</p>
+          <div style="background:${color};color:#fff;font-size:18px;font-weight:700;padding:12px 20px;border-radius:8px;display:inline-block">${label}</div>
+          ${trackHtml}
+          <p style="margin:20px 0 0;color:#666;font-size:13px">При въпроси се свържете с нас на <strong>0887 77 89 92</strong></p>
+        </div>
+      </div>`;
+    try {
+      await sendViaResend(`Поръчка ${order.order_number} — ${label}`, html, order.customer_email);
+    } catch(e) { console.error('[STATUS EMAIL]', e.message); }
+  }
+
   res.json({ ok: true });
 });
 
