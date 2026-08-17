@@ -150,6 +150,9 @@ async function initDB() {
     )
   `);
 
+  // Add image column to product_variations if not already present (safe migration)
+  try { _db.exec(`ALTER TABLE product_variations ADD COLUMN image TEXT`); } catch(e) {}
+
   save();
 
   // Default settings

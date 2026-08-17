@@ -529,6 +529,7 @@ function renderVariations() {
       <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Размер</th>
       <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase">Опаковка</th>
       <th style="padding:8px 12px;text-align:right;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;width:90px">Цена</th>
+      <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;width:56px">Снимка</th>
       <th style="padding:8px 12px;width:80px"></th>
     </tr></thead>
     <tbody>${currentVars.map(v => `
@@ -536,6 +537,12 @@ function renderVariations() {
         <td style="padding:9px 12px;font-weight:700;color:var(--navy)">${esc(v.name)}</td>
         <td style="padding:9px 12px;color:#666;font-size:12px">${esc(v.description||'—')}</td>
         <td style="padding:9px 12px;text-align:right;font-weight:700;color:var(--orange)">${(currentBasePrice + (v.price_modifier||0)).toFixed(2)} €</td>
+        <td style="padding:6px 8px;text-align:center">
+          <label style="cursor:pointer" title="${v.image ? 'Смени снимката' : 'Качи снимка'}">
+            ${v.image ? `<img src="${esc(v.image)}" style="width:40px;height:40px;object-fit:contain;border-radius:4px;border:1px solid #eee;display:block">` : `<span style="font-size:20px;display:block;line-height:40px">📷</span>`}
+            <input type="file" accept="image/*" style="display:none" onchange="uploadVarImage(${v.id}, this)">
+          </label>
+        </td>
         <td style="padding:6px 8px">
           <div style="display:flex;gap:4px;justify-content:flex-end">
             <button class="btn btn-secondary btn-sm" style="padding:4px 9px;font-size:11px" onclick="editVariation(${v.id})" title="Редактирай">✏️</button>
@@ -650,6 +657,20 @@ async function deleteVariation(id) {
     renderVariations();
     showToast('Вариацията е изтрита', 'success');
   } else showToast('Грешка при изтриване', 'error');
+}
+
+async function uploadVarImage(id, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('image', file);
+  const res = await fetch(`/api/variations/${id}/image`, { method: 'POST', body: fd });
+  if (res.ok) {
+    const updated = await (await fetch(`/api/products/${editingId}`)).json();
+    currentVars = updated.variations || [];
+    renderVariations();
+    showToast('✅ Снимката е качена', 'success');
+  } else showToast('Грешка при качване', 'error');
 }
 
 document.addEventListener('DOMContentLoaded', checkAuth);

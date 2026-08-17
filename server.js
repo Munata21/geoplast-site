@@ -281,6 +281,13 @@ app.delete('/api/variations/:id', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/variations/:id/image', requireAdmin, upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file' });
+  const imgPath = `/uploads/${req.file.filename}`;
+  db.prepare('UPDATE product_variations SET image=? WHERE id=?').run(imgPath, req.params.id);
+  res.json({ path: imgPath });
+});
+
 app.post('/api/products', requireAdmin, upload.single('image'), (req, res) => {
   const { name, description, price, old_price, category, code, stock, unit } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : null;

@@ -149,7 +149,7 @@ async function loadProduct() {
         <label style="font-size:13px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Размер:</label>
         <select id="prod-var-sel" onchange="onVarChange(${p.price})" style="width:100%;border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;outline:none">
           <option value="">— Изберете размер —</option>
-          ${p.variations.map(v => `<option value="${v.id}" data-mod="${v.price_modifier||0}" data-name="${esc(v.name)}" data-desc="${esc(v.description||'')}">${esc(v.name)}${v.description ? ' — ' + esc(v.description) : ''}</option>`).join('')}
+          ${p.variations.map(v => `<option value="${v.id}" data-mod="${v.price_modifier||0}" data-name="${esc(v.name)}" data-desc="${esc(v.description||'')}" data-image="${esc(v.image||'')}">${esc(v.name)}${v.description ? ' — ' + esc(v.description) : ''}</option>`).join('')}
         </select>
         <div id="prod-var-note" style="font-size:12px;color:#888;margin-top:5px;min-height:18px"></div>
       </div>` : '';
@@ -157,7 +157,7 @@ async function loadProduct() {
     document.getElementById('product-content').innerHTML = `
       <div class="product-layout">
         <div class="product-gallery">
-          <div class="main-img">${imgEl}</div>
+          <div class="main-img" id="main-img-wrap" data-orig="${esc(p.image||'')}" data-name="${esc(p.name)}">${imgEl}</div>
           ${badge}
         </div>
         <div class="product-info">
@@ -198,11 +198,20 @@ function onVarChange(basePrice) {
   const opt = sel.options[sel.selectedIndex];
   const noteEl = document.getElementById('prod-var-note');
   const priceEl = document.getElementById('prod-price-main');
+  const wrap = document.getElementById('main-img-wrap');
+
   if (!opt.value) {
     if (noteEl) noteEl.textContent = '';
     if (priceEl) {
       const rangeText = priceEl.dataset.range;
       priceEl.textContent = rangeText || (basePrice.toFixed(2) + ' €');
+    }
+    if (wrap) {
+      const orig = wrap.dataset.orig;
+      const name = wrap.dataset.name;
+      wrap.innerHTML = orig
+        ? `<img src="${orig}" alt="${esc(name)}" onclick="openImgModal('${orig}','${esc(name)}')">`
+        : `<span style="font-size:80px">${getCatEmoji(wrap.dataset.cat||'')}</span>`;
     }
     return;
   }
@@ -211,6 +220,15 @@ function onVarChange(basePrice) {
   const finalPrice = Math.max(0, basePrice + mod);
   if (noteEl) noteEl.textContent = desc;
   if (priceEl) priceEl.textContent = finalPrice.toFixed(2) + ' €';
+
+  if (wrap) {
+    const varImg = opt.dataset.image;
+    const displayImg = varImg || wrap.dataset.orig;
+    const name = wrap.dataset.name;
+    if (displayImg) {
+      wrap.innerHTML = `<img src="${displayImg}" alt="${esc(name)}" onclick="openImgModal('${displayImg}','${esc(name)}')">`;
+    }
+  }
 }
 
 function changeQty(delta) {

@@ -324,8 +324,16 @@ function initMobileCats() {
   btn.addEventListener('click', () => panel.classList.toggle('open'));
 }
 
+// ── Scroll padding to compensate for sticky header ────────────────────────────
+function updateScrollPadding() {
+  const hdr = document.querySelector('.header');
+  if (hdr) document.documentElement.style.scrollPaddingTop = (hdr.offsetHeight + 8) + 'px';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  updateScrollPadding();
+  window.addEventListener('resize', updateScrollPadding);
   Cart.updateHeader();
   loadSettings();
   if (document.getElementById('products-grid')) {
