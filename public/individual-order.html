@@ -155,6 +155,10 @@
         <label>Описание на нуждата *</label>
         <textarea id="ind-message" placeholder="Опишете подробно от какво имате нужда — продукт, размери, количество, специфики..." required></textarea>
       </div>
+      <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+        <label for="hp-website">Уебсайт</label>
+        <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <button type="submit" class="btn-send" id="ind-btn">📬 Изпрати запитване</button>
     </form>
   </div>
@@ -178,6 +182,7 @@
 
 <script src="/js/app.js"></script>
 <script>
+const FORM_LOADED_AT = Date.now();
 async function sendIndOrder(e) {
   e.preventDefault();
   const btn = document.getElementById('ind-btn');
@@ -194,7 +199,9 @@ async function sendIndOrder(e) {
       'Срок: ' + (document.getElementById('ind-deadline').value.trim() || '—'),
       '',
       document.getElementById('ind-message').value.trim()
-    ].join('\n')
+    ].join('\n'),
+    website: document.getElementById('hp-website').value,
+    _t: Date.now() - FORM_LOADED_AT
   };
   try {
     const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

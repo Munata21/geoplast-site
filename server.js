@@ -572,9 +572,25 @@ app.get('/api/track/:number', async (req, res) => {
 });
 
 // ── CONTACT FORM ─────────────────────────────────────────────────────────────
+// Mixed-case Latin run of 12+ letters, e.g. "jxlfEjOHaqBMMiOylAJ" — never a real name or word
+function hasRandomToken(s) {
+  return String(s || '').split(/\s+/).some(w =>
+    /^[A-Za-z]{12,}$/.test(w) && (w.match(/[A-Z]/g) || []).length >= 4 && (w.match(/[a-z]/g) || []).length >= 4
+  );
+}
+
 app.post('/api/contact', async (req, res) => {
-  const { name, phone, email, subject, message } = req.body;
+  const { name, phone, email, subject, message, website, _t } = req.body;
   if (!name || !phone || !message) return res.status(400).json({ error: 'Попълнете задължителните полета' });
+  // Spam gets a fake success so the bot doesn't adapt
+  const spamReason = website ? 'honeypot'
+    : !(Number(_t) >= 3000) ? 'too-fast'
+    : (hasRandomToken(name) || hasRandomToken(message)) ? 'random-text'
+    : null;
+  if (spamReason) {
+    console.log(`🚫 Spam blocked (${spamReason}): ${String(name).slice(0, 40)}`);
+    return res.json({ ok: true });
+  }
   try {
     db.prepare('INSERT INTO inquiries (name, phone, email, subject, message) VALUES (?, ?, ?, ?, ?)')
       .run(name, phone, email || '', subject || '', message);

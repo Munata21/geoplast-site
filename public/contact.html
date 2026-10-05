@@ -114,6 +114,10 @@
         <label>Съобщение *</label>
         <textarea id="cf-message" placeholder="Опишете вашето запитване — продукт, количество, размери..." required></textarea>
       </div>
+      <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+        <label for="hp-website">Уебсайт</label>
+        <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <button type="submit" class="btn-send" id="send-btn">📬 Изпрати запитване</button>
     </form>
   </div>
@@ -170,6 +174,7 @@
 
 <script src="/js/app.js"></script>
 <script>
+const FORM_LOADED_AT = Date.now();
 async function sendInquiry(e) {
   e.preventDefault();
   const btn = document.getElementById('send-btn');
@@ -181,7 +186,9 @@ async function sendInquiry(e) {
     phone: document.getElementById('cf-phone').value.trim(),
     email: document.getElementById('cf-email').value.trim(),
     subject: document.getElementById('cf-subject').value,
-    message: document.getElementById('cf-message').value.trim()
+    message: document.getElementById('cf-message').value.trim(),
+    website: document.getElementById('hp-website').value,
+    _t: Date.now() - FORM_LOADED_AT
   };
 
   try {
