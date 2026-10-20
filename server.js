@@ -579,8 +579,33 @@ function hasRandomToken(s) {
   );
 }
 
+// reCAPTCHA is enforced only when both keys are set in the environment
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || '';
+
+async function recaptchaOk(token, ip) {
+  if (!RECAPTCHA_SITE_KEY || !RECAPTCHA_SECRET) return true;
+  if (!token) return false;
+  try {
+    const r = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret: RECAPTCHA_SECRET, response: token, remoteip: ip || '' }).toString()
+    });
+    return (await r.json()).success === true;
+  } catch (e) {
+    // Google unreachable: let it through rather than lose a real customer; the checks above still ran
+    console.error('reCAPTCHA verify error:', e.message);
+    return true;
+  }
+}
+
+app.get('/api/recaptcha-key', (req, res) => {
+  res.json({ siteKey: RECAPTCHA_SITE_KEY && RECAPTCHA_SECRET ? RECAPTCHA_SITE_KEY : '' });
+});
+
 app.post('/api/contact', async (req, res) => {
-  const { name, phone, email, subject, message, website, _t } = req.body;
+  const { name, phone, email, subject, message, website, _t, recaptcha } = req.body;
   if (!name || !phone || !message) return res.status(400).json({ error: 'Попълнете задължителните полета' });
   // Spam gets a fake success so the bot doesn't adapt
   const spamReason = website ? 'honeypot'
@@ -590,6 +615,10 @@ app.post('/api/contact', async (req, res) => {
   if (spamReason) {
     console.log(`🚫 Spam blocked (${spamReason}): ${String(name).slice(0, 40)}`);
     return res.json({ ok: true });
+  }
+  if (!(await recaptchaOk(recaptcha, req.ip))) {
+    console.log(`🚫 reCAPTCHA failed: ${String(name).slice(0, 40)}`);
+    return res.status(400).json({ error: 'Моля, потвърдете, че не сте робот' });
   }
   try {
     db.prepare('INSERT INTO inquiries (name, phone, email, subject, message) VALUES (?, ?, ?, ?, ?)')

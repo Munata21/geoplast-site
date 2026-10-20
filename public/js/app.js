@@ -44,6 +44,29 @@ const Cart = {
   }
 };
 
+// ── reCAPTCHA (rendered only when the server has keys configured) ─────────────
+let recaptchaWidget = null;
+async function initRecaptcha(containerId) {
+  try {
+    const { siteKey } = await fetch('/api/recaptcha-key').then(r => r.json());
+    if (!siteKey) return;
+    window.onRecaptchaLoad = () => {
+      const box = document.getElementById(containerId);
+      recaptchaWidget = grecaptcha.render(box, { sitekey: siteKey, size: box.offsetWidth < 304 ? 'compact' : 'normal' });
+    };
+    const s = document.createElement('script');
+    s.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit&hl=bg';
+    s.async = true;
+    document.head.appendChild(s);
+  } catch {}
+}
+function recaptchaToken() {
+  return recaptchaWidget === null ? '' : grecaptcha.getResponse(recaptchaWidget);
+}
+function recaptchaReset() {
+  if (recaptchaWidget !== null) grecaptcha.reset(recaptchaWidget);
+}
+
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
   let t = document.getElementById('toast');
