@@ -592,7 +592,11 @@ async function recaptchaOk(token, ip) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ secret: RECAPTCHA_SECRET, response: token, remoteip: ip || '' }).toString()
     });
-    return (await r.json()).success === true;
+    const data = await r.json();
+    // v3 returns a 0–1 score; 0.3 is lenient so real customers on VPNs/new browsers still get through
+    const ok = data.success === true && (data.score === undefined || data.score >= 0.3);
+    if (!ok) console.log(`reCAPTCHA rejected: success=${data.success} score=${data.score} errors=${(data['error-codes'] || []).join(',')}`);
+    return ok;
   } catch (e) {
     // Google unreachable: let it through rather than lose a real customer; the checks above still ran
     console.error('reCAPTCHA verify error:', e.message);

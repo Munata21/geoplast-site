@@ -118,7 +118,6 @@
         <label for="hp-website">Уебсайт</label>
         <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
       </div>
-      <div id="recaptcha-box" style="margin-bottom:16px"></div>
       <button type="submit" class="btn-send" id="send-btn">📬 Изпрати запитване</button>
     </form>
   </div>
@@ -178,11 +177,10 @@
 const FORM_LOADED_AT = Date.now();
 async function sendInquiry(e) {
   e.preventDefault();
-  const captcha = recaptchaToken();
-  if (recaptchaWidget !== null && !captcha) { showToast('Моля, отбележете „Не съм робот“', 'error'); return; }
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
   btn.textContent = '⏳ Изпращане...';
+  const captcha = await recaptchaToken();
 
   const body = {
     name: document.getElementById('cf-name').value.trim(),
@@ -209,7 +207,6 @@ async function sendInquiry(e) {
     }
   } catch {
     showToast('Грешка при изпращане. Моля обадете се на телефон.', 'error');
-    recaptchaReset();
     btn.disabled = false;
     btn.textContent = '📬 Изпрати запитване';
   }
@@ -218,7 +215,7 @@ async function sendInquiry(e) {
 document.addEventListener('DOMContentLoaded', () => {
   Cart.updateHeader();
   loadSettings();
-  initRecaptcha('recaptcha-box');
+  initRecaptcha();
 });
 </script>
 </body>

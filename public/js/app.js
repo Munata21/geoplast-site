@@ -44,27 +44,25 @@ const Cart = {
   }
 };
 
-// ── reCAPTCHA (rendered only when the server has keys configured) ─────────────
-let recaptchaWidget = null;
-async function initRecaptcha(containerId) {
+// ── reCAPTCHA v3 (loaded only when the server has keys configured) ────────────
+let recaptchaSiteKey = '';
+async function initRecaptcha() {
   try {
     const { siteKey } = await fetch('/api/recaptcha-key').then(r => r.json());
     if (!siteKey) return;
-    window.onRecaptchaLoad = () => {
-      const box = document.getElementById(containerId);
-      recaptchaWidget = grecaptcha.render(box, { sitekey: siteKey, size: box.offsetWidth < 304 ? 'compact' : 'normal' });
-    };
+    recaptchaSiteKey = siteKey;
     const s = document.createElement('script');
-    s.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit&hl=bg';
+    s.src = 'https://www.google.com/recaptcha/api.js?hl=bg&render=' + encodeURIComponent(siteKey);
     s.async = true;
     document.head.appendChild(s);
   } catch {}
 }
-function recaptchaToken() {
-  return recaptchaWidget === null ? '' : grecaptcha.getResponse(recaptchaWidget);
-}
-function recaptchaReset() {
-  if (recaptchaWidget !== null) grecaptcha.reset(recaptchaWidget);
+async function recaptchaToken() {
+  if (!recaptchaSiteKey || !window.grecaptcha) return '';
+  try {
+    return await new Promise((resolve, reject) =>
+      grecaptcha.ready(() => grecaptcha.execute(recaptchaSiteKey, { action: 'contact' }).then(resolve, reject)));
+  } catch { return ''; }
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────

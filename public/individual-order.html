@@ -159,7 +159,6 @@
         <label for="hp-website">Уебсайт</label>
         <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
       </div>
-      <div id="recaptcha-box" style="margin-bottom:16px"></div>
       <button type="submit" class="btn-send" id="ind-btn">📬 Изпрати запитване</button>
     </form>
   </div>
@@ -186,10 +185,9 @@
 const FORM_LOADED_AT = Date.now();
 async function sendIndOrder(e) {
   e.preventDefault();
-  const captcha = recaptchaToken();
-  if (recaptchaWidget !== null && !captcha) { showToast('Моля, отбележете „Не съм робот“', 'error'); return; }
   const btn = document.getElementById('ind-btn');
   btn.disabled = true; btn.textContent = '⏳ Изпращане...';
+  const captcha = await recaptchaToken();
   const body = {
     name: document.getElementById('ind-name').value.trim(),
     phone: document.getElementById('ind-phone').value.trim(),
@@ -215,11 +213,10 @@ async function sendIndOrder(e) {
     } else { throw new Error(); }
   } catch {
     showToast('Грешка при изпращане. Обадете се на 0887 77 89 92.', 'error');
-    recaptchaReset();
     btn.disabled = false; btn.textContent = '📬 Изпрати запитване';
   }
 }
-document.addEventListener('DOMContentLoaded', () => { Cart.updateHeader(); loadSettings(); initRecaptcha('recaptcha-box'); });
+document.addEventListener('DOMContentLoaded', () => { Cart.updateHeader(); loadSettings(); initRecaptcha(); });
 </script>
 </body>
 </html>
